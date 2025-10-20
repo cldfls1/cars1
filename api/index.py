@@ -48,6 +48,7 @@ class UpdateDealStatusRequest(BaseModel):
 
 class SendMessageRequest(BaseModel):
     message: str
+    sender_id: int
 
 class ProductCreate(BaseModel):
     title: str
@@ -506,7 +507,7 @@ async def send_message(
     # Create message
     new_message = Message(
         deal_id=deal_id,
-        sender_id=1,  # Mock user
+        sender_id=request.sender_id,
         message=request.message,
         is_system=False
     )

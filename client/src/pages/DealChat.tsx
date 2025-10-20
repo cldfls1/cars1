@@ -65,11 +65,11 @@ const DealChat = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newMessage.trim()) return
+    if (!newMessage.trim() || !user?.id) return
 
     setSending(true)
     try {
-      await dealService.sendMessage(parseInt(id!), newMessage)
+      await dealService.sendMessage(parseInt(id!), newMessage, user.id)
       setNewMessage('')
       loadMessages()
     } catch (error) {

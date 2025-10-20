@@ -55,8 +55,11 @@ export const dealService = {
     return data
   },
 
-  async sendMessage(dealId: number, message: string): Promise<DealMessage> {
-    const { data } = await api.post<DealMessage>(`/deals/${dealId}/messages`, { message })
+  async sendMessage(dealId: number, message: string, senderId: number): Promise<DealMessage> {
+    const { data } = await api.post<DealMessage>(`/deals/${dealId}/messages`, { 
+      message,
+      sender_id: senderId 
+    })
     return data
   },
 }
