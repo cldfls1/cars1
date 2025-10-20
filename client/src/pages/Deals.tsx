@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { dealService, Deal } from '../services/deals'
 import { formatDate } from '../lib/utils'
 import { MessageSquare, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
 
 const Deals = () => {
   const { t, i18n } = useTranslation()
+  const { user } = useAuthStore()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
@@ -18,7 +20,18 @@ const Deals = () => {
   const loadDeals = async () => {
     try {
       const data = await dealService.getDeals()
-      setDeals(data)
+      // Filter deals based on user role
+      // Buyers see deals where they are the buyer
+      // Sellers see deals for their products
+      const filteredData = data.filter(deal => {
+        if (!user) return false
+        // If user is buyer of this deal
+        if (deal.buyer_id === user.id) return true
+        // If user is seller of the product in this deal
+        if (deal.product && deal.product.seller === user.username) return true
+        return false
+      })
+      setDeals(filteredData)
     } catch (error) {
       console.error('Failed to load deals:', error)
     } finally {

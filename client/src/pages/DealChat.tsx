@@ -173,12 +173,27 @@ const DealChat = () => {
         )}
 
         {/* TEST BUTTON - ALWAYS VISIBLE */}
-        <div className="mt-6 p-6 bg-yellow-100 border-4 border-yellow-500 rounded-xl">
-          <p className="text-2xl font-bold mb-4">⚠️ ТЕСТОВАЯ КНОПКА - ВСЕГДА ВИДНА</p>
-          <p className="mb-4">isSeller: {isSeller ? 'ДА' : 'НЕТ'} | isBuyer: {isBuyer ? 'ДА' : 'НЕТ'} | Status: {deal.status}</p>
-          <button className="w-full bg-yellow-500 text-black font-bold py-4 rounded-lg text-xl">
-            ЕСЛИ ЭТУ КНОПКУ ВИДНО - UI РАБОТАЕТ
-          </button>
+        <div className="mt-6 p-6 bg-yellow-100 border-4 border-yellow-500 rounded-xl text-sm">
+          <p className="text-2xl font-bold mb-4">⚠️ DEBUG INFO</p>
+          
+          <div className="bg-white p-3 rounded mb-3">
+            <p className="font-bold mb-2">COMPARISON:</p>
+            <p>isSeller: {isSeller ? '✅ ДА' : '❌ НЕТ'}</p>
+            <p>isBuyer: {isBuyer ? '✅ ДА' : '❌ НЕТ'}</p>
+            <p>Status: {deal.status}</p>
+          </div>
+          
+          <div className="bg-white p-3 rounded mb-3">
+            <p className="font-bold mb-2">USER DATA:</p>
+            <p>user?.username: "{user?.username}"</p>
+            <p>user?.id: {user?.id}</p>
+          </div>
+          
+          <div className="bg-white p-3 rounded">
+            <p className="font-bold mb-2">DEAL DATA:</p>
+            <p>deal.product?.seller: "{deal.product?.seller}"</p>
+            <p>deal.buyer_id: {deal.buyer_id}</p>
+          </div>
         </div>
 
         {/* Seller Actions - Accept/Reject Deal */}
