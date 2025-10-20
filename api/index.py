@@ -1,7 +1,8 @@
 """
 Vercel serverless function entry point
 """
+from mangum import Mangum
 from main import app
 
-# Vercel requires the ASGI app to be named 'app' or exported
-# This file serves as the entry point for Vercel serverless functions
+# Wrap FastAPI app with Mangum for AWS Lambda/Vercel compatibility
+handler = Mangum(app, lifespan="off")
