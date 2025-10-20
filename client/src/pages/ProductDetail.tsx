@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { productService, Product } from '../services/products'
 import { dealService } from '../services/deals'
 import { useAuthStore } from '../store/authStore'
-import { formatPrice } from '../lib/utils'
 import { ShoppingCart, ArrowLeft, Package } from 'lucide-react'
 
 const ProductDetail = () => {
@@ -25,7 +24,7 @@ const ProductDetail = () => {
 
   const loadProduct = async () => {
     try {
-      const data = await productService.getProduct(parseInt(id!), i18n.language)
+      const data = await productService.getProduct(parseInt(id!))
       setProduct(data)
     } catch (error) {
       console.error('Failed to load product:', error)
@@ -102,7 +101,7 @@ const ProductDetail = () => {
           
           <div className="mb-6">
             <span className="text-5xl font-bold text-primary-600">
-              {formatPrice(product.price, product.currency)}
+              ${product.price}
             </span>
           </div>
 

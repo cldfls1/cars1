@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { productService, Category } from '../services/products'
+import { productService } from '../services/products'
 import { 
   Package, 
   ArrowRight, 
@@ -15,7 +15,7 @@ import {
 
 const Home = () => {
   const { i18n } = useTranslation()
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const Home = () => {
 
   const loadCategories = async () => {
     try {
-      const data = await productService.getCategories(i18n.language)
+      const data = await productService.getCategories()
       setCategories(data)
     } catch (error) {
       console.error('Failed to load categories:', error)
@@ -98,18 +98,15 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-200">
             {categories.map((category) => (
               <Link
-                key={category.id}
-                to={`/products?category=${category.id}`}
+                key={category}
+                to={`/products?category=${category}`}
                 className="group bg-white p-12 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-2xl font-semibold text-gray-900 mb-3 group-hover:underline">
-                      {category.name}
+                      {category}
                     </h3>
-                    {category.description && (
-                      <p className="text-gray-600">{category.description}</p>
-                    )}
                   </div>
                   <ArrowRight size={24} className="text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" />
                 </div>
