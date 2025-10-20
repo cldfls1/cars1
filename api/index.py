@@ -1,16 +1,22 @@
 """
-Vercel serverless function entry point
+Vercel serverless function entry point with PostgreSQL database
 """
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from database import get_db, engine, Base
+from models import User, Product, Deal, Message
 
 app = FastAPI(
     title="CarX Mods Club API",
-    description="Simple trading platform for game mods",
-    version="2.0.0"
+    description="Trading platform for game mods with PostgreSQL",
+    version="3.0.0"
 )
 
 # CORS
@@ -22,23 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Models
-class Product(BaseModel):
-    id: int
-    title: str
-    description: str
-    price: float
-    category: str
-    seller: str
-    image_url: Optional[str] = None
-    created_at: str
-
-class User(BaseModel):
-    id: int
-    username: str
-    email: str
-    role: str = "user"
-
+# Pydantic models
 class LoginRequest(BaseModel):
     username: str
     password: str
@@ -59,230 +49,388 @@ class UpdateDealStatusRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     message: str
 
-# ⚠️ WARNING: In-memory storage - data will be lost on Vercel serverless cold starts
-# For production, use a real database (PostgreSQL, MongoDB, etc.)
-
-# In-memory storage
-products_db = [
-    {
-        "id": 1,
-        "title": "BMW M3 E46 Mod",
-        "description": "High quality BMW M3 E46 mod with custom liveries",
-        "price": 9.99,
-        "category": "Cars",
-        "seller": "ModMaker123",
-        "image_url": "https://via.placeholder.com/300x200",
-        "created_at": datetime.now().isoformat()
-    },
-    {
-        "id": 2,
-        "title": "Custom Sound Pack",
-        "description": "Realistic engine sounds pack",
-        "price": 4.99,
-        "category": "Audio",
-        "seller": "SoundPro",
-        "image_url": "https://via.placeholder.com/300x200",
-        "created_at": datetime.now().isoformat()
-    }
-]
-
-users_db = [
-    {"id": 1, "username": "admin", "email": "admin@example.com", "role": "admin", "password": "admin123"},
-    {"id": 2, "username": "seller", "email": "seller@example.com", "role": "seller", "password": "seller123"}
-]
-
-categories_db = ["Cars", "Audio", "Maps", "Liveries", "Parts"]
-
-# Initialize with empty lists (will reset on cold start)
-if 'deals_db' not in globals():
-    deals_db = []
-if 'messages_db' not in globals():
-    messages_db = []
+# Startup: Create tables
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 # Routes
 @app.get("/")
 def root():
-    return {"message": "CarX Mods Club API", "status": "running", "version": "2.0.0"}
+    return {"message": "CarX Mods Club API", "status": "running", "version": "3.0.0", "database": "PostgreSQL"}
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "database": "connected"}
 
 # Auth
 @app.post("/api/auth/login")
-def login(request: LoginRequest):
-    user = next((u for u in users_db if u["username"] == request.username and u["password"] == request.password), None)
-    if not user:
+async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(User).where(User.username == request.username)
+    )
+    user = result.scalar_one_or_none()
+    
+    if not user or user.password != request.password:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
     return {
-        "access_token": f"token_{user['username']}",
+        "access_token": f"token_{user.username}",
         "token_type": "bearer",
         "user": {
-            "id": user["id"],
-            "username": user["username"],
-            "email": user["email"],
-            "role": user["role"]
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
         }
     }
 
 @app.post("/api/auth/register")
-def register(request: RegisterRequest):
-    if any(u["username"] == request.username for u in users_db):
+async def register(request: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    # Check if username exists
+    result = await db.execute(
+        select(User).where(User.username == request.username)
+    )
+    if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Username already exists")
     
-    new_user = {
-        "id": len(users_db) + 1,
-        "username": request.username,
-        "email": request.email or "",
-        "role": "user",
-        "password": request.password
-    }
-    users_db.append(new_user)
+    # Create user
+    new_user = User(
+        username=request.username,
+        password=request.password,
+        email=request.email or "",
+        role="user"
+    )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    
     return {
         "message": "User registered successfully",
-        "access_token": f"token_{new_user['username']}",
+        "access_token": f"token_{new_user.username}",
         "user": {
-            "id": new_user["id"],
-            "username": new_user["username"],
-            "email": new_user["email"],
-            "role": new_user["role"]
+            "id": new_user.id,
+            "username": new_user.username,
+            "email": new_user.email,
+            "role": new_user.role
         }
     }
 
 # Products
-@app.get("/api/products", response_model=List[Product])
-def get_products(category: Optional[str] = None, search: Optional[str] = None):
-    result = products_db.copy()
+@app.get("/api/products")
+async def get_products(
+    category: Optional[str] = None,
+    search: Optional[str] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    query = select(Product)
     
     if category:
-        result = [p for p in result if p["category"] == category]
+        query = query.where(Product.category == category)
     
     if search:
-        result = [p for p in result if search.lower() in p["title"].lower() or search.lower() in p["description"].lower()]
+        query = query.where(
+            (Product.title.ilike(f"%{search}%")) | (Product.description.ilike(f"%{search}%"))
+        )
     
-    return result
+    result = await db.execute(query)
+    products = result.scalars().all()
+    
+    return [
+        {
+            "id": p.id,
+            "title": p.title,
+            "description": p.description,
+            "price": p.price,
+            "category": p.category,
+            "seller": p.seller,
+            "image_url": p.image_url,
+            "created_at": p.created_at.isoformat() if p.created_at else None
+        }
+        for p in products
+    ]
 
-@app.get("/api/products/{product_id}", response_model=Product)
-def get_product(product_id: int):
-    product = next((p for p in products_db if p["id"] == product_id), None)
+@app.get("/api/products/{product_id}")
+async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+    
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    
+    return {
+        "id": product.id,
+        "title": product.title,
+        "description": product.description,
+        "price": product.price,
+        "category": product.category,
+        "seller": product.seller,
+        "image_url": product.image_url,
+        "created_at": product.created_at.isoformat() if product.created_at else None
+    }
 
 @app.post("/api/products")
-def create_product(title: str, description: str, price: float, category: str, seller: str):
-    new_product = {
-        "id": len(products_db) + 1,
-        "title": title,
-        "description": description,
-        "price": price,
-        "category": category,
-        "seller": seller,
-        "image_url": "https://via.placeholder.com/300x200",
-        "created_at": datetime.now().isoformat()
+async def create_product(
+    title: str,
+    description: str,
+    price: float,
+    category: str,
+    seller: str,
+    db: AsyncSession = Depends(get_db)
+):
+    new_product = Product(
+        title=title,
+        description=description,
+        price=price,
+        category=category,
+        seller=seller,
+        image_url="https://via.placeholder.com/300x200"
+    )
+    db.add(new_product)
+    await db.commit()
+    await db.refresh(new_product)
+    
+    return {
+        "id": new_product.id,
+        "title": new_product.title,
+        "description": new_product.description,
+        "price": new_product.price,
+        "category": new_product.category,
+        "seller": new_product.seller,
+        "image_url": new_product.image_url,
+        "created_at": new_product.created_at.isoformat()
     }
-    products_db.append(new_product)
-    return new_product
 
 @app.delete("/api/products/{product_id}")
-def delete_product(product_id: int):
-    global products_db
-    products_db = [p for p in products_db if p["id"] != product_id]
+async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    await db.delete(product)
+    await db.commit()
+    
     return {"message": "Product deleted"}
 
 # Categories
 @app.get("/api/categories")
-def get_categories():
-    return categories_db
+async def get_categories():
+    return ["Cars", "Audio", "Maps", "Liveries", "Parts"]
 
 # Users
 @app.get("/api/users/me")
-def get_current_user():
-    return users_db[0]  # Mock current user
-
-@app.get("/api/users/{user_id}")
-def get_user(user_id: int):
-    user = next((u for u in users_db if u["id"] == user_id), None)
+async def get_current_user(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.id == 1))
+    user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]}
+    return {"id": user.id, "username": user.username, "email": user.email, "role": user.role}
+
+@app.get("/api/users/{user_id}")
+async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role": user.role
+    }
 
 # Deals
 @app.post("/api/deals")
-def create_deal(request: CreateDealRequest):
-    product = next((p for p in products_db if p["id"] == request.product_id), None)
+async def create_deal(request: CreateDealRequest, db: AsyncSession = Depends(get_db)):
+    # Get product
+    result = await db.execute(
+        select(Product).where(Product.id == request.product_id)
+    )
+    product = result.scalar_one_or_none()
+    
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    new_deal = {
-        "id": len(deals_db) + 1,
-        "buyer_id": 1,  # Mock user
-        "product_id": request.product_id,
-        "status": "pending",
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
-        "product": product
+    # Create deal
+    new_deal = Deal(
+        buyer_id=1,  # Mock user
+        product_id=request.product_id,
+        status="pending"
+    )
+    db.add(new_deal)
+    await db.commit()
+    await db.refresh(new_deal)
+    
+    return {
+        "id": new_deal.id,
+        "buyer_id": new_deal.buyer_id,
+        "product_id": new_deal.product_id,
+        "status": new_deal.status,
+        "created_at": new_deal.created_at.isoformat(),
+        "updated_at": new_deal.updated_at.isoformat() if new_deal.updated_at else None,
+        "product": {
+            "id": product.id,
+            "title": product.title,
+            "description": product.description,
+            "price": product.price,
+            "image_url": product.image_url
+        }
     }
-    deals_db.append(new_deal)
-    return new_deal
 
 @app.get("/api/deals")
-def get_deals():
-    return deals_db
+async def get_deals(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Deal).options(selectinload(Deal.product))
+    )
+    deals = result.scalars().all()
+    
+    return [
+        {
+            "id": d.id,
+            "buyer_id": d.buyer_id,
+            "product_id": d.product_id,
+            "status": d.status,
+            "created_at": d.created_at.isoformat(),
+            "updated_at": d.updated_at.isoformat() if d.updated_at else None
+        }
+        for d in deals
+    ]
 
 @app.get("/api/deals/{deal_id}")
-def get_deal(deal_id: int):
-    deal = next((d for d in deals_db if d["id"] == deal_id), None)
+async def get_deal(deal_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Deal).where(Deal.id == deal_id)
+    )
+    deal = result.scalar_one_or_none()
+    
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
-    return deal
+    
+    # Get product
+    prod_result = await db.execute(
+        select(Product).where(Product.id == deal.product_id)
+    )
+    product = prod_result.scalar_one_or_none()
+    
+    return {
+        "id": deal.id,
+        "buyer_id": deal.buyer_id,
+        "product_id": deal.product_id,
+        "status": deal.status,
+        "created_at": deal.created_at.isoformat(),
+        "updated_at": deal.updated_at.isoformat() if deal.updated_at else None,
+        "product": {
+            "id": product.id,
+            "title": product.title,
+            "description": product.description,
+            "price": product.price,
+            "image_url": product.image_url
+        } if product else None
+    }
 
 @app.put("/api/deals/{deal_id}/status")
-def update_deal_status(deal_id: int, request: UpdateDealStatusRequest):
-    deal = next((d for d in deals_db if d["id"] == deal_id), None)
+async def update_deal_status(
+    deal_id: int,
+    request: UpdateDealStatusRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Deal).where(Deal.id == deal_id)
+    )
+    deal = result.scalar_one_or_none()
+    
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
     
-    deal["status"] = request.status
-    deal["updated_at"] = datetime.now().isoformat()
+    # Update status
+    deal.status = request.status
+    deal.updated_at = datetime.utcnow()
     
     if request.status == "completed":
-        deal["completed_at"] = datetime.now().isoformat()
+        deal.completed_at = datetime.utcnow()
     
     # Add system message
-    system_message = {
-        "id": len(messages_db) + 1,
-        "deal_id": deal_id,
-        "sender_id": 0,
-        "message": f"Status updated to {request.status}",
-        "is_system": True,
-        "created_at": datetime.now().isoformat()
-    }
-    messages_db.append(system_message)
+    system_message = Message(
+        deal_id=deal_id,
+        sender_id=0,
+        message=f"Status updated to {request.status}",
+        is_system=True
+    )
+    db.add(system_message)
     
-    return deal
+    await db.commit()
+    await db.refresh(deal)
+    
+    return {
+        "id": deal.id,
+        "buyer_id": deal.buyer_id,
+        "product_id": deal.product_id,
+        "status": deal.status,
+        "created_at": deal.created_at.isoformat(),
+        "updated_at": deal.updated_at.isoformat() if deal.updated_at else None
+    }
 
 @app.get("/api/deals/{deal_id}/messages")
-def get_messages(deal_id: int):
-    deal_messages = [m for m in messages_db if m["deal_id"] == deal_id]
-    return deal_messages
+async def get_messages(deal_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Message).where(Message.deal_id == deal_id).order_by(Message.created_at)
+    )
+    messages = result.scalars().all()
+    
+    return [
+        {
+            "id": m.id,
+            "deal_id": m.deal_id,
+            "sender_id": m.sender_id,
+            "message": m.message,
+            "is_system": m.is_system,
+            "created_at": m.created_at.isoformat()
+        }
+        for m in messages
+    ]
 
 @app.post("/api/deals/{deal_id}/messages")
-def send_message(deal_id: int, request: SendMessageRequest):
-    deal = next((d for d in deals_db if d["id"] == deal_id), None)
-    if not deal:
+async def send_message(
+    deal_id: int,
+    request: SendMessageRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    # Check deal exists
+    result = await db.execute(
+        select(Deal).where(Deal.id == deal_id)
+    )
+    if not result.scalar_one_or_none():
         raise HTTPException(status_code=404, detail="Deal not found")
     
-    new_message = {
-        "id": len(messages_db) + 1,
-        "deal_id": deal_id,
-        "sender_id": 1,  # Mock user
-        "message": request.message,
-        "is_system": False,
-        "created_at": datetime.now().isoformat()
+    # Create message
+    new_message = Message(
+        deal_id=deal_id,
+        sender_id=1,  # Mock user
+        message=request.message,
+        is_system=False
+    )
+    db.add(new_message)
+    await db.commit()
+    await db.refresh(new_message)
+    
+    return {
+        "id": new_message.id,
+        "deal_id": new_message.deal_id,
+        "sender_id": new_message.sender_id,
+        "message": new_message.message,
+        "is_system": new_message.is_system,
+        "created_at": new_message.created_at.isoformat()
     }
-    messages_db.append(new_message)
-    return new_message
 
 # Export app for Vercel (ASGI)
-# Vercel supports ASGI apps directly
