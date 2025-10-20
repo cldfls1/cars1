@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { dealService, Deal, DealMessage } from '../services/deals'
 import { useAuthStore } from '../store/authStore'
 import { formatDate, formatPrice } from '../lib/utils'
-import { ArrowLeft, Send, CheckCircle, XCircle, CreditCard } from 'lucide-react'
+import { ArrowLeft, Send, CheckCircle, XCircle } from 'lucide-react'
 
 const DealChat = () => {
   const { id } = useParams<{ id: string }>()
@@ -15,7 +15,6 @@ const DealChat = () => {
   const [deal, setDeal] = useState<Deal | null>(null)
   const [messages, setMessages] = useState<DealMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
-  const [steamCard, setSteamCard] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
 
@@ -75,14 +74,8 @@ const DealChat = () => {
   }
 
   const handleSubmitPayment = async () => {
-    if (!steamCard.trim()) {
-      alert(i18n.language === 'ru' ? 'Введите код Steam карты' : 'Enter Steam card code')
-      return
-    }
-
     try {
-      await dealService.updateDealStatus(parseInt(id!), 'payment_sent', steamCard)
-      setSteamCard('')
+      await dealService.updateDealStatus(parseInt(id!), 'payment_sent')
       loadDeal()
       loadMessages()
     } catch (error) {
@@ -174,20 +167,9 @@ const DealChat = () => {
           </div>
         )}
 
-        {/* Buyer Payment */}
+        {/* Buyer Payment - Simplified */}
         {isBuyer && deal.status === 'accepted' && (
           <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-3 flex items-center space-x-2">
-              <CreditCard size={20} />
-              <span>{t('steam_card_code')}</span>
-            </h3>
-            <input
-              type="text"
-              value={steamCard}
-              onChange={(e) => setSteamCard(e.target.value)}
-              placeholder={i18n.language === 'ru' ? 'Введите код...' : 'Enter code...'}
-              className="input mb-3"
-            />
             <button
               onClick={handleSubmitPayment}
               className="btn btn-primary w-full"
@@ -200,9 +182,6 @@ const DealChat = () => {
         {/* Admin Complete Deal */}
         {isAdmin && deal.status === 'payment_sent' && (
           <div className="mt-4">
-            <p className="text-sm text-gray-600 mb-2">
-              Steam Card: <code className="bg-gray-100 px-2 py-1 rounded">{deal.steam_card_code}</code>
-            </p>
             <button
               onClick={() => handleUpdateStatus('completed')}
               className="btn btn-primary w-full flex items-center justify-center space-x-2"
