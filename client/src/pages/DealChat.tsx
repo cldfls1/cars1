@@ -259,56 +259,49 @@ const DealChat = () => {
           </div>
         )}
 
-        {/* Buyer Payment */}
-        {isBuyer && (deal.status === 'accepted' || deal.status === 'payment_sent') && (
+        {/* Buyer Info - Just send code in chat */}
+        {isBuyer && deal.status === 'accepted' && (
+          <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Package size={24} className="text-blue-700" />
+              <p className="text-lg font-bold text-blue-900 uppercase">
+                {i18n.language === 'ru' ? 'Оплата Steam картой' : 'Steam Card Payment'}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-700 mb-2">
+                {i18n.language === 'ru'
+                  ? '💳 Отправьте код Steam карты продавцу в чате ниже.'
+                  : '💳 Send the Steam gift card code to seller in the chat below.'}
+              </p>
+              <p className="text-xs text-gray-600">
+                {i18n.language === 'ru'
+                  ? 'Продавец проверит код и завершит сделку.'
+                  : 'Seller will verify the code and complete the deal.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Seller Complete Deal - After accepting */}
+        {isSeller && deal.status === 'accepted' && (
           <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle size={24} className="text-green-700" />
               <p className="text-lg font-bold text-green-900 uppercase">
-                {i18n.language === 'ru' ? 'Способ оплаты' : 'Payment Method'}
+                {i18n.language === 'ru' ? 'Получили код?' : 'Received Code?'}
               </p>
             </div>
             <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Package size={16} className="text-green-700" />
-                <p className="text-sm font-semibold text-gray-700">
-                  {i18n.language === 'ru' ? 'Steam Gift Card' : 'Steam Gift Card'}
-                </p>
-              </div>
-              <p className="text-xs text-gray-600">
-                {i18n.language === 'ru'
-                  ? 'Отправьте код Steam карты продавцу в чате. После отправки нажмите кнопку ниже.'
-                  : 'Send the Steam gift card code to seller in chat. Click the button below after sending.'}
-              </p>
-            </div>
-            <button
-              onClick={handleSubmitPayment}
-              className="btn btn-primary w-full py-3 text-lg font-bold shadow-md hover:shadow-xl transition"
-            >
-              ✓ {i18n.language === 'ru' ? 'Я отправил код Steam карты' : 'I Sent Steam Card Code'}
-            </button>
-          </div>
-        )}
-
-        {/* Seller Complete Deal */}
-        {isSeller && deal.status === 'payment_sent' && (
-          <div className="mt-6 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-xl shadow-lg">
-            <div className="flex items-center gap-2 mb-3">
-              <CheckCircle size={24} className="text-yellow-700" />
-              <p className="text-lg font-bold text-yellow-900 uppercase">
-                {i18n.language === 'ru' ? 'Оплата получена?' : 'Payment Received?'}
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-lg border border-yellow-200 mb-4">
               <p className="text-sm text-gray-700 mb-2">
                 {i18n.language === 'ru' 
-                  ? '💳 Покупатель сообщил об отправке Steam карты'
-                  : '💳 Buyer confirmed sending Steam card'}
+                  ? '💳 Покупатель отправит код Steam карты в чат'
+                  : '💳 Buyer will send Steam card code in chat'}
               </p>
               <p className="text-xs text-gray-600">
                 {i18n.language === 'ru'
-                  ? 'Проверьте код Steam карты в чате выше. Если все верно - завершите сделку.'
-                  : 'Check the Steam card code in chat above. If correct - complete the deal.'}
+                  ? 'Когда получите код и проверите его - завершите сделку.'
+                  : 'When you receive and verify the code - complete the deal.'}
               </p>
             </div>
             <button
@@ -316,7 +309,7 @@ const DealChat = () => {
               className="btn btn-primary w-full flex items-center justify-center space-x-2 py-3 text-lg font-bold shadow-md hover:shadow-xl transition"
             >
               <CheckCircle size={24} />
-              <span>{i18n.language === 'ru' ? 'Подтвердить и завершить сделку' : 'Confirm & Complete Deal'}</span>
+              <span>{i18n.language === 'ru' ? '✓ Завершить сделку' : '✓ Complete Deal'}</span>
             </button>
           </div>
         )}
