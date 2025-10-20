@@ -1,6 +1,7 @@
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import NullPool
 
 # Get DATABASE_URL from environment
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -23,13 +24,12 @@ elif DATABASE_URL.startswith("postgresql://") and "+asyncpg" not in DATABASE_URL
 if "?sslmode=" in DATABASE_URL:
     DATABASE_URL = DATABASE_URL.split("?")[0]
 
-# Create async engine with SSL configuration
+# Create async engine with NullPool for serverless
+# NullPool = no connection reuse, each request gets fresh connection
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+    poolclass=NullPool,  # Critical for serverless - prevents event loop conflicts
     connect_args={"ssl": "require"}  # SSL mode for asyncpg
 )
 
