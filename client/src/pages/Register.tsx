@@ -35,7 +35,7 @@ const Register = () => {
       {/* Left Side - Image/Info */}
       <div className="hidden lg:flex lg:w-1/2 bg-gray-900 text-white p-20 flex-col justify-between">
         <div>
-          <h2 className="text-4xl font-bold mb-4 uppercase tracking-tight">Join CarX Mods</h2>
+          <h2 className="text-4xl font-bold mb-4 uppercase tracking-tight">Join CarxMods</h2>
           <p className="text-gray-400 text-lg">
             {t('register_description') || 'Get access to premium mods and secure deals'}
           </p>
