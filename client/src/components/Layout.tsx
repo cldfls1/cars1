@@ -129,74 +129,58 @@ const Layout = () => {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-auto">
-        <div className="container mx-auto px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="container mx-auto px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
-              <h3 className="text-xl font-bold mb-6 uppercase tracking-wide">CarxMods</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <h3 className="text-xl font-bold mb-3 uppercase tracking-wide">CarxMods</h3>
+              <p className="text-gray-400 text-sm mb-4">
                 {i18n.language === 'ru' 
                   ? 'Премиум моды для CarX Street'
                   : 'Premium mods for CarX Street'}
               </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 uppercase tracking-wide text-gray-400">
-                {i18n.language === 'ru' ? 'Навигация' : 'Navigation'}
-              </h4>
-              <div className="space-y-2">
-                <Link to="/products" className="block text-sm text-gray-400 hover:text-white transition">
-                  {t('products')}
-                </Link>
-                <Link to="/deals" className="block text-sm text-gray-400 hover:text-white transition">
-                  {t('my_deals')}
-                </Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 uppercase tracking-wide text-gray-400">
-                {i18n.language === 'ru' ? 'Информация' : 'Information'}
-              </h4>
-              <div className="space-y-2">
-                <Link to="/about" className="block text-sm text-gray-400 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'О нас' : 'About'}
-                </Link>
-                <Link to="/docs" className="block text-sm text-gray-400 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Документация' : 'Docs'}
-                </Link>
-                <Link to="/contact" className="block text-sm text-gray-400 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Контакты' : 'Contact'}
-                </Link>
-                <Link to="/terms" className="block text-sm text-gray-400 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Соглашение' : 'Terms'}
-                </Link>
-                <Link to="/privacy" className="block text-sm text-gray-400 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Конфиденциальность' : 'Privacy'}
-                </Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-4 uppercase tracking-wide text-gray-400">
-                {i18n.language === 'ru' ? 'Язык' : 'Language'}
-              </h4>
-              <button onClick={toggleLanguage} className="text-sm text-gray-400 hover:text-white transition">
-                {i18n.language === 'ru' ? 'English' : 'Русский'}
+              <button onClick={toggleLanguage} className="text-sm text-gray-400 hover:text-white transition flex items-center gap-2">
+                🌐 {i18n.language === 'ru' ? 'English' : 'Русский'}
               </button>
             </div>
-          </div>
-          <div className="pt-8 mt-8 border-t border-gray-800">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-500 text-sm">
-                &copy; 2025 CarxMods. {i18n.language === 'ru' ? 'Все права защищены.' : 'All rights reserved.'}
-              </p>
-              <div className="flex gap-6 text-sm">
-                <Link to="/privacy" className="text-gray-500 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Конфиденциальность' : 'Privacy'}
-                </Link>
-                <Link to="/terms" className="text-gray-500 hover:text-white transition">
-                  {i18n.language === 'ru' ? 'Условия' : 'Terms'}
-                </Link>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-gray-400">
+                  {i18n.language === 'ru' ? 'Сайт' : 'Site'}
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <Link to="/products" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'Мод паки' : 'Mod Packs'}
+                  </Link>
+                  <Link to="/about" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'О нас' : 'About'}
+                  </Link>
+                  <Link to="/contact" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'Контакты' : 'Contact'}
+                  </Link>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-3 text-gray-400">
+                  {i18n.language === 'ru' ? 'Помощь' : 'Help'}
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <Link to="/docs" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'Как купить' : 'How to Buy'}
+                  </Link>
+                  <Link to="/terms" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'Условия' : 'Terms'}
+                  </Link>
+                  <Link to="/privacy" className="block text-gray-400 hover:text-white transition">
+                    {i18n.language === 'ru' ? 'Конфиденциальность' : 'Privacy'}
+                  </Link>
+                </div>
               </div>
             </div>
+          </div>
+          <div className="pt-6 border-t border-gray-800 text-center md:text-left">
+            <p className="text-gray-500 text-sm">
+              &copy; 2025 CarxMods. {i18n.language === 'ru' ? 'Все права защищены.' : 'All rights reserved.'}
+            </p>
           </div>
         </div>
       </footer>
