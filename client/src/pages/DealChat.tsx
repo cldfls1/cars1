@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { dealService, Deal, DealMessage } from '../services/deals'
@@ -19,8 +19,6 @@ const DealChat = () => {
   const [seller, setSeller] = useState<any>(null)
   const [buyer, setBuyer] = useState<any>(null)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (id) {
       loadDeal()
@@ -30,13 +28,7 @@ const DealChat = () => {
     }
   }, [id])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  // Removed auto-scroll to prevent constant scrolling
 
   const loadDeal = async () => {
     try {
@@ -364,7 +356,7 @@ const DealChat = () => {
                           </div>
                           <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
                             <span className="font-semibold">
-                              {isMine ? (user?.username || 'You') : (isBuyer ? seller?.username || 'Seller' : buyer?.username || 'Buyer')}
+                              {isMine ? (user?.username || 'You') : (message.sender_id === deal.buyer_id ? buyer?.username || 'Buyer' : seller?.username || 'Seller')}
                             </span>
                             <span>•</span>
                             <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
@@ -375,7 +367,6 @@ const DealChat = () => {
                   </div>
                 )
               })}
-              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
