@@ -3,6 +3,7 @@ import api from './api'
 export interface Deal {
   id: number
   buyer_id: number
+  buyer_username?: string
   product_id: number
   status: 'pending' | 'accepted' | 'payment_sent' | 'completed' | 'rejected' | 'cancelled'
   created_at: string
