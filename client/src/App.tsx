@@ -12,6 +12,10 @@ import Dashboard from './pages/Dashboard'
 import Deals from './pages/Deals'
 import DealChat from './pages/DealChat'
 import AdminPanel from './pages/AdminPanel'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import Docs from './pages/Docs'
+import Terms from './pages/Terms'
 
 // Layout
 import Layout from './components/Layout'
@@ -34,6 +38,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/terms" element={<Terms />} />
           
           {isAuthenticated && (
             <>

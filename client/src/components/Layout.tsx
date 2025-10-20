@@ -130,7 +130,7 @@ const Layout = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-auto">
         <div className="container mx-auto px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div>
               <h3 className="text-xl font-bold mb-6 uppercase tracking-wide">CarxMods</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
@@ -149,6 +149,25 @@ const Layout = () => {
                 </Link>
                 <Link to="/deals" className="block text-sm text-gray-400 hover:text-white transition">
                   {t('my_deals')}
+                </Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-4 uppercase tracking-wide text-gray-400">
+                {i18n.language === 'ru' ? 'Информация' : 'Information'}
+              </h4>
+              <div className="space-y-2">
+                <Link to="/about" className="block text-sm text-gray-400 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'О нас' : 'About'}
+                </Link>
+                <Link to="/docs" className="block text-sm text-gray-400 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Документация' : 'Docs'}
+                </Link>
+                <Link to="/contact" className="block text-sm text-gray-400 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Контакты' : 'Contact'}
+                </Link>
+                <Link to="/terms" className="block text-sm text-gray-400 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Соглашение' : 'Terms'}
                 </Link>
               </div>
             </div>
