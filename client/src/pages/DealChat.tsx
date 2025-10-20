@@ -79,16 +79,6 @@ const DealChat = () => {
     }
   }
 
-  const handleSubmitPayment = async () => {
-    try {
-      await dealService.updateDealStatus(parseInt(id!), 'payment_sent')
-      loadDeal()
-      loadMessages()
-    } catch (error) {
-      console.error('Failed to submit payment:', error)
-    }
-  }
-
   const handleUpdateStatus = async (status: string) => {
     alert(`Нажали кнопку! Статус: ${status}`)
     try {
