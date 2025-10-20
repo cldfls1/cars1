@@ -102,6 +102,17 @@ const DealChat = () => {
   const isBuyer = deal.buyer_id === user?.id
   const isSeller = deal.product?.seller === user?.username
 
+  // Function to get sender name based on sender_id
+  const getSenderName = (senderId: number) => {
+    if (senderId === user?.id) {
+      return user.username // Current user
+    }
+    if (senderId === deal.buyer_id) {
+      return buyer?.username || 'Buyer' // Buyer
+    }
+    return seller?.username || 'Seller' // Seller
+  }
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <button
@@ -356,10 +367,7 @@ const DealChat = () => {
                           </div>
                           <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
                             <span className="font-semibold">
-                              {message.sender_id === deal.buyer_id 
-                                ? (buyer?.username || 'Buyer')
-                                : (seller?.username || 'Seller')
-                              }
+                              {getSenderName(message.sender_id)}
                             </span>
                             <span>•</span>
                             <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
