@@ -59,6 +59,9 @@ class UpdateDealStatusRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     message: str
 
+# ⚠️ WARNING: In-memory storage - data will be lost on Vercel serverless cold starts
+# For production, use a real database (PostgreSQL, MongoDB, etc.)
+
 # In-memory storage
 products_db = [
     {
@@ -90,8 +93,11 @@ users_db = [
 
 categories_db = ["Cars", "Audio", "Maps", "Liveries", "Parts"]
 
-deals_db = []
-messages_db = []
+# Initialize with empty lists (will reset on cold start)
+if 'deals_db' not in globals():
+    deals_db = []
+if 'messages_db' not in globals():
+    messages_db = []
 
 # Routes
 @app.get("/")
