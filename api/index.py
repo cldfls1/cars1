@@ -72,8 +72,12 @@ def health_check():
 
 # TEMPORARY: Init database (remove after first run)
 @app.get("/api/init-database")
-async def init_database(db: AsyncSession = Depends(get_db)):
-    """Initialize database with tables and seed data - Open this URL in browser"""
+async def init_database(secret: str = "", db: AsyncSession = Depends(get_db)):
+    """Initialize database with tables and seed data - Requires secret token"""
+    # Security check
+    if secret != "carxmods_init_2024":
+        raise HTTPException(status_code=403, detail="Forbidden: Invalid secret token")
+    
     try:
         # Create tables
         async with engine.begin() as conn:
