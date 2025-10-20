@@ -40,7 +40,7 @@ const Home = () => {
       <div className="text-center mb-32 fade-in max-w-5xl mx-auto">
         <div className="mb-6">
           <span className="inline-block text-xs font-semibold text-gray-500 uppercase tracking-[0.2em] mb-6">
-            {i18n.language === 'ru' ? 'CarX Drift Racing' : 'CarX Drift Racing'}
+            {i18n.language === 'ru' ? 'CarX Street' : 'CarX Street'}
           </span>
         </div>
         <h1 className="text-7xl md:text-8xl font-bold text-gray-900 mb-8 tracking-tight leading-none">
@@ -86,8 +86,8 @@ const Home = () => {
           </h2>
           <p className="text-lg text-gray-500">
             {i18n.language === 'ru' 
-              ? 'Лучшие моды для CarX Drift Racing'
-              : 'Best mods for CarX Drift Racing'}
+              ? 'Лучшие моды для CarX Street'
+              : 'Best mods for CarX Street'}
           </p>
         </div>
         

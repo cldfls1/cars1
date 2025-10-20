@@ -19,7 +19,7 @@ const Layout = () => {
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="flex items-center justify-between h-8 text-xs">
             <span className="text-gray-400">
-              {i18n.language === 'ru' ? 'Премиум моды для CarX Drift Racing' : 'Premium mods for CarX Drift Racing'}
+              {i18n.language === 'ru' ? 'Премиум моды для CarX Street' : 'Premium mods for CarX Street'}
             </span>
             <div className="flex items-center space-x-4">
               <span className="text-gray-400">
@@ -40,7 +40,7 @@ const Layout = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="text-base font-bold text-gray-900 hover:text-gray-600 transition tracking-tight relative group">
-              CARX MODS CLUB
+              CARXMODS
               <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
             </Link>
 
@@ -132,11 +132,11 @@ const Layout = () => {
         <div className="container mx-auto px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <div>
-              <h3 className="text-xl font-bold mb-6 uppercase tracking-wide">CarX Mods Club</h3>
+              <h3 className="text-xl font-bold mb-6 uppercase tracking-wide">CarxMods</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 {i18n.language === 'ru' 
-                  ? 'Премиум моды для CarX Drift Racing'
-                  : 'Premium mods for CarX Drift Racing'}
+                  ? 'Премиум моды для CarX Street'
+                  : 'Premium mods for CarX Street'}
               </p>
             </div>
             <div>
@@ -162,7 +162,7 @@ const Layout = () => {
             </div>
           </div>
           <div className="pt-8 border-t border-gray-800 text-center text-gray-500 text-xs uppercase tracking-wide">
-            &copy; 2024 CarX Mods Club. All rights reserved.
+            &copy; 2024 CarxMods. All rights reserved.
           </div>
         </div>
       </footer>
