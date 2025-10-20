@@ -172,8 +172,17 @@ const DealChat = () => {
           </div>
         )}
 
+        {/* TEST BUTTON - ALWAYS VISIBLE */}
+        <div className="mt-6 p-6 bg-yellow-100 border-4 border-yellow-500 rounded-xl">
+          <p className="text-2xl font-bold mb-4">⚠️ ТЕСТОВАЯ КНОПКА - ВСЕГДА ВИДНА</p>
+          <p className="mb-4">isSeller: {isSeller ? 'ДА' : 'НЕТ'} | isBuyer: {isBuyer ? 'ДА' : 'НЕТ'} | Status: {deal.status}</p>
+          <button className="w-full bg-yellow-500 text-black font-bold py-4 rounded-lg text-xl">
+            ЕСЛИ ЭТУ КНОПКУ ВИДНО - UI РАБОТАЕТ
+          </button>
+        </div>
+
         {/* Seller Actions - Accept/Reject Deal */}
-        {isSeller && deal.status === 'pending' && (
+        {isSeller && (deal.status === 'pending' || deal.status === 'accepted') && (
           <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-4">
               <Package size={24} className="text-blue-700" />
@@ -233,7 +242,7 @@ const DealChat = () => {
         )}
 
         {/* Buyer Payment */}
-        {isBuyer && deal.status === 'accepted' && (
+        {isBuyer && (deal.status === 'accepted' || deal.status === 'payment_sent') && (
           <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle size={24} className="text-green-700" />
