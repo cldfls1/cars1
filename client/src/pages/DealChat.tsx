@@ -378,7 +378,7 @@ const DealChat = () => {
                           </div>
                           <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
                             <span className="font-semibold">
-                              {getSenderName(message.sender_id)}
+                              {getSenderName(message.sender_id)} (ID:{message.sender_id})
                             </span>
                             <span>•</span>
                             <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
