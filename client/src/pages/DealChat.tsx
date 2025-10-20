@@ -80,15 +80,13 @@ const DealChat = () => {
   }
 
   const handleUpdateStatus = async (status: string) => {
-    alert(`Нажали кнопку! Статус: ${status}`)
     try {
       await dealService.updateDealStatus(parseInt(id!), status)
-      alert('✅ Статус обновлен!')
       loadDeal()
       loadMessages()
     } catch (error) {
       console.error('Failed to update status:', error)
-      alert(`❌ Ошибка: ${error}`)
+      alert(`${i18n.language === 'ru' ? 'Ошибка обновления статуса' : 'Failed to update status'}`)
     }
   }
 
@@ -165,32 +163,8 @@ const DealChat = () => {
           </div>
         )}
 
-        {/* TEST BUTTON - ALWAYS VISIBLE */}
-        <div className="mt-6 p-6 bg-yellow-100 border-4 border-yellow-500 rounded-xl text-sm">
-          <p className="text-2xl font-bold mb-4">⚠️ DEBUG INFO</p>
-          
-          <div className="bg-white p-3 rounded mb-3">
-            <p className="font-bold mb-2">COMPARISON:</p>
-            <p>isSeller: {isSeller ? '✅ ДА' : '❌ НЕТ'}</p>
-            <p>isBuyer: {isBuyer ? '✅ ДА' : '❌ НЕТ'}</p>
-            <p>Status: {deal.status}</p>
-          </div>
-          
-          <div className="bg-white p-3 rounded mb-3">
-            <p className="font-bold mb-2">USER DATA:</p>
-            <p>user?.username: "{user?.username}"</p>
-            <p>user?.id: {user?.id}</p>
-          </div>
-          
-          <div className="bg-white p-3 rounded">
-            <p className="font-bold mb-2">DEAL DATA:</p>
-            <p>deal.product?.seller: "{deal.product?.seller}"</p>
-            <p>deal.buyer_id: {deal.buyer_id}</p>
-          </div>
-        </div>
-
         {/* Seller Actions - Accept/Reject Deal */}
-        {isSeller && (deal.status === 'pending' || deal.status === 'accepted') && (
+        {isSeller && deal.status === 'pending' && (
           <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-4">
               <Package size={24} className="text-blue-700" />
