@@ -40,7 +40,8 @@ const AdminPanel = () => {
     description: '',
     price: 0,
     category: 'Cars',
-    seller: ''
+    seller: '',
+    image_url: ''
   })
 
   useEffect(() => {
@@ -88,7 +89,7 @@ const AdminPanel = () => {
 
   const handleAddProduct = () => {
     setEditingProduct(null)
-    setProductForm({ title: '', description: '', price: 0, category: 'Cars', seller: '' })
+    setProductForm({ title: '', description: '', price: 0, category: 'Cars', seller: '', image_url: '' })
     setShowProductForm(true)
   }
 
@@ -99,7 +100,8 @@ const AdminPanel = () => {
       description: product.description,
       price: product.price,
       category: product.category,
-      seller: product.seller
+      seller: product.seller,
+      image_url: product.image_url || ''
     })
     setShowProductForm(true)
   }
@@ -258,6 +260,28 @@ const AdminPanel = () => {
                     required
                   />
                 </div>
+                <input
+                  type="url"
+                  placeholder={i18n.language === 'ru' ? 'URL изображения (https://...)' : 'Image URL (https://...)'}
+                  value={productForm.image_url}
+                  onChange={(e) => setProductForm({...productForm, image_url: e.target.value})}
+                  className="input"
+                />
+                {productForm.image_url && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600 mb-2">{i18n.language === 'ru' ? 'Предпросмотр:' : 'Preview:'}</p>
+                    <img 
+                      src={productForm.image_url} 
+                      alt="Preview" 
+                      className="w-full h-48 object-cover rounded-lg border"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                      }}
+                    />
+                    <p className="text-sm text-red-500 mt-2 hidden">{i18n.language === 'ru' ? 'Ошибка загрузки изображения' : 'Error loading image'}</p>
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <button type="submit" className="btn btn-primary">
                     {i18n.language === 'ru' ? 'Сохранить' : 'Save'}
