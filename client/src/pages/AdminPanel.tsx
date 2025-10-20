@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import api from '../services/api'
-import { Users, Package, TrendingUp, Ban, ShieldCheck } from 'lucide-react'
+import { Users, Package, TrendingUp, Ban, ShieldCheck, Plus, Edit, Trash2 } from 'lucide-react'
 
 interface User {
   id: number
@@ -17,15 +17,36 @@ interface Stats {
   total_revenue: number
 }
 
+interface Product {
+  id: number
+  title: string
+  description: string
+  price: number
+  category: string
+  seller: string
+  image_url?: string
+}
+
 const AdminPanel = () => {
   const { t, i18n } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'stats' | 'users'>('stats')
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'products'>('stats')
   const [stats, setStats] = useState<Stats | null>(null)
   const [users, setUsers] = useState<User[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [showProductForm, setShowProductForm] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [productForm, setProductForm] = useState({
+    title: '',
+    description: '',
+    price: 0,
+    category: 'Cars',
+    seller: ''
+  })
 
   useEffect(() => {
     loadStats()
     loadUsers()
+    loadProducts()
   }, [])
 
   const loadStats = async () => {
@@ -46,6 +67,15 @@ const AdminPanel = () => {
     }
   }
 
+  const loadProducts = async () => {
+    try {
+      const { data } = await api.get<Product[]>('/products')
+      setProducts(data)
+    } catch (error) {
+      console.error('Failed to load products:', error)
+    }
+  }
+
   const handleBanUser = async (userId: number, ban: boolean) => {
     try {
       await api.put(`/admin/users/${userId}/${ban ? 'ban' : 'unban'}`)
@@ -53,6 +83,58 @@ const AdminPanel = () => {
       alert(t('success'))
     } catch (error) {
       console.error('Failed to ban/unban user:', error)
+    }
+  }
+
+  const handleAddProduct = () => {
+    setEditingProduct(null)
+    setProductForm({ title: '', description: '', price: 0, category: 'Cars', seller: '' })
+    setShowProductForm(true)
+  }
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product)
+    setProductForm({
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      seller: product.seller
+    })
+    setShowProductForm(true)
+  }
+
+  const handleDeleteProduct = async (productId: number) => {
+    if (!confirm(i18n.language === 'ru' ? 'Удалить товар?' : 'Delete product?')) return
+    
+    try {
+      await api.delete(`/products/${productId}`)
+      loadProducts()
+      loadStats()
+      alert(i18n.language === 'ru' ? 'Товар удален' : 'Product deleted')
+    } catch (error) {
+      console.error('Failed to delete product:', error)
+      alert(i18n.language === 'ru' ? 'Ошибка удаления' : 'Delete failed')
+    }
+  }
+
+  const handleSubmitProduct = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    try {
+      if (editingProduct) {
+        // TODO: Update endpoint
+        alert('Update not implemented yet')
+      } else {
+        await api.post('/products', productForm)
+      }
+      loadProducts()
+      loadStats()
+      setShowProductForm(false)
+      alert(i18n.language === 'ru' ? 'Товар сохранен' : 'Product saved')
+    } catch (error) {
+      console.error('Failed to save product:', error)
+      alert(i18n.language === 'ru' ? 'Ошибка сохранения' : 'Save failed')
     }
   }
 
@@ -68,6 +150,14 @@ const AdminPanel = () => {
           }`}
         >
           {t('statistics')}
+        </button>
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`px-6 py-3 rounded-lg font-medium ${
+            activeTab === 'products' ? 'bg-primary-600 text-white' : 'bg-gray-100'
+          }`}
+        >
+          {t('products')}
         </button>
         <button
           onClick={() => setActiveTab('users')}
@@ -100,6 +190,125 @@ const AdminPanel = () => {
             <span className="text-4xl mb-3">💰</span>
             <p className="text-gray-600">{i18n.language === 'ru' ? 'Доход' : 'Revenue'}</p>
             <p className="text-3xl font-bold">{stats.total_revenue.toFixed(0)} ₽</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'products' && (
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">{t('products')}</h2>
+            <button
+              onClick={handleAddProduct}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <Plus size={20} />
+              <span>{i18n.language === 'ru' ? 'Добавить товар' : 'Add Product'}</span>
+            </button>
+          </div>
+
+          {showProductForm && (
+            <div className="card mb-6">
+              <h3 className="text-xl font-bold mb-4">
+                {editingProduct ? (i18n.language === 'ru' ? 'Редактировать' : 'Edit') : (i18n.language === 'ru' ? 'Новый товар' : 'New Product')}
+              </h3>
+              <form onSubmit={handleSubmitProduct} className="space-y-4">
+                <input
+                  type="text"
+                  placeholder={i18n.language === 'ru' ? 'Название' : 'Title'}
+                  value={productForm.title}
+                  onChange={(e) => setProductForm({...productForm, title: e.target.value})}
+                  className="input"
+                  required
+                />
+                <textarea
+                  placeholder={i18n.language === 'ru' ? 'Описание' : 'Description'}
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                  className="input"
+                  rows={3}
+                  required
+                />
+                <div className="grid grid-cols-3 gap-4">
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder={i18n.language === 'ru' ? 'Цена' : 'Price'}
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({...productForm, price: parseFloat(e.target.value)})}
+                    className="input"
+                    required
+                  />
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+                    className="input"
+                  >
+                    <option value="Cars">Cars</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Maps">Maps</option>
+                    <option value="Liveries">Liveries</option>
+                    <option value="Parts">Parts</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder={i18n.language === 'ru' ? 'Продавец' : 'Seller'}
+                    value={productForm.seller}
+                    onChange={(e) => setProductForm({...productForm, seller: e.target.value})}
+                    className="input"
+                    required
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" className="btn btn-primary">
+                    {i18n.language === 'ru' ? 'Сохранить' : 'Save'}
+                  </button>
+                  <button type="button" onClick={() => setShowProductForm(false)} className="btn bg-gray-200">
+                    {i18n.language === 'ru' ? 'Отмена' : 'Cancel'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          <div className="card">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-left px-4 py-3">ID</th>
+                  <th className="text-left px-4 py-3">{i18n.language === 'ru' ? 'Название' : 'Title'}</th>
+                  <th className="text-left px-4 py-3">{i18n.language === 'ru' ? 'Цена' : 'Price'}</th>
+                  <th className="text-left px-4 py-3">{i18n.language === 'ru' ? 'Категория' : 'Category'}</th>
+                  <th className="text-left px-4 py-3">{i18n.language === 'ru' ? 'Действия' : 'Actions'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product.id} className="border-b">
+                    <td className="px-4 py-3">{product.id}</td>
+                    <td className="px-4 py-3">{product.title}</td>
+                    <td className="px-4 py-3">${product.price}</td>
+                    <td className="px-4 py-3">{product.category}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="p-2 hover:bg-blue-50 rounded"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="p-2 hover:bg-red-50 rounded text-red-600"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
