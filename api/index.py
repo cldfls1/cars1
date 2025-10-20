@@ -174,5 +174,5 @@ def get_user(user_id: int):
         raise HTTPException(status_code=404, detail="User not found")
     return {"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]}
 
-# Export handler for Vercel
-handler = Mangum(app, lifespan="off")
+# Export app for Vercel (ASGI)
+# Vercel supports ASGI apps directly
