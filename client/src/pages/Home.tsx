@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { productService } from '../services/products'
+import { productService, Product } from '../services/products'
 import { 
   Package, 
   ArrowRight, 
@@ -15,19 +15,19 @@ import {
 
 const Home = () => {
   const { i18n } = useTranslation()
-  const [categories, setCategories] = useState<string[]>([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadCategories()
-  }, [i18n.language])
+    loadProducts()
+  }, [])
 
-  const loadCategories = async () => {
+  const loadProducts = async () => {
     try {
-      const data = await productService.getCategories()
-      setCategories(data)
+      const data = await productService.getProducts()
+      setProducts(data)
     } catch (error) {
-      console.error('Failed to load categories:', error)
+      console.error('Failed to load products:', error)
     } finally {
       setLoading(false)
     }
@@ -77,43 +77,74 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Categories */}
+      {/* Products */}
       <div className="mb-32">
         <div className="mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4">
-            {i18n.language === 'ru' ? 'Категории' : 'Categories'}
+            {i18n.language === 'ru' ? 'Популярные моды' : 'Popular Mods'}
           </h2>
           <p className="text-lg text-gray-500">
             {i18n.language === 'ru' 
-              ? 'Выберите категорию и найдите идеальные моды'
-              : 'Choose a category and find perfect mods'}
+              ? 'Лучшие моды для CarX Drift Racing'
+              : 'Best mods for CarX Drift Racing'}
           </p>
         </div>
         
         {loading ? (
-          <div className="py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-gray-900 border-t-transparent"></div>
+          <div className="py-12 text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-gray-900 border-t-transparent rounded-full mx-auto"></div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">
+              {i18n.language === 'ru' ? 'Нет доступных товаров' : 'No products available'}
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-200">
-            {categories.map((category) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {products.map((product) => (
               <Link
-                key={category}
-                to={`/products?category=${category}`}
-                className="group bg-white p-12 hover:bg-gray-50 transition-colors"
+                key={product.id}
+                to={`/products/${product.id}`}
+                className="group bg-white border border-gray-200 hover:border-gray-900 transition-all duration-300 overflow-hidden"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-3 group-hover:underline">
-                      {category}
-                    </h3>
+                {product.image_url && (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={product.image_url}
+                      alt={product.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <ArrowRight size={24} className="text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" />
+                )}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:underline">
+                    {product.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {product.description}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-gray-900">
+                      ${product.price}
+                    </span>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <ShoppingCart size={16} className="mr-1" />
+                      <span>{i18n.language === 'ru' ? 'Купить' : 'Buy'}</span>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))}
           </div>
         )}
+        
+        <div className="text-center mt-12">
+          <Link to="/products" className="inline-flex items-center px-8 py-4 border border-gray-900 text-gray-900 text-sm font-medium hover:bg-gray-900 hover:text-white transition-all">
+            <span>{i18n.language === 'ru' ? 'ПОСМОТРЕТЬ ВСЕ' : 'VIEW ALL'}</span>
+            <ArrowRight className="ml-2" size={16} />
+          </Link>
+        </div>
       </div>
 
       {/* Features */}
