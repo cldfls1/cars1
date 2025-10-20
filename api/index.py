@@ -359,22 +359,35 @@ async def create_deal(request: CreateDealRequest, db: AsyncSession = Depends(get
 
 @app.get("/api/deals")
 async def get_deals(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(Deal).options(selectinload(Deal.product))
-    )
+    result = await db.execute(select(Deal))
     deals = result.scalars().all()
     
-    return [
-        {
-            "id": d.id,
-            "buyer_id": d.buyer_id,
-            "product_id": d.product_id,
-            "status": d.status,
-            "created_at": d.created_at.isoformat(),
-            "updated_at": d.updated_at.isoformat() if d.updated_at else None
-        }
-        for d in deals
-    ]
+    deals_with_products = []
+    for deal in deals:
+        # Get product for each deal
+        prod_result = await db.execute(
+            select(Product).where(Product.id == deal.product_id)
+        )
+        product = prod_result.scalar_one_or_none()
+        
+        if product:
+            deals_with_products.append({
+                "id": deal.id,
+                "buyer_id": deal.buyer_id,
+                "product_id": deal.product_id,
+                "status": deal.status,
+                "created_at": deal.created_at.isoformat(),
+                "updated_at": deal.updated_at.isoformat() if deal.updated_at else None,
+                "product": {
+                    "id": product.id,
+                    "title": product.title,
+                    "price": product.price,
+                    "seller": product.seller,
+                    "image_url": product.image_url
+                }
+            })
+    
+    return deals_with_products
 
 @app.get("/api/deals/{deal_id}")
 async def get_deal(deal_id: int, db: AsyncSession = Depends(get_db)):
