@@ -592,15 +592,30 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
 @app.post("/api/upload/image")
 async def upload_image(file: UploadFile = File(...)):
     """Upload image to Vercel Blob storage"""
-    # Validate file type
+    print(f"Upload attempt - filename: {file.filename}, content_type: {file.content_type}")
+    
+    # Validate file type - be more lenient
     allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
-    if file.content_type not in allowed_types:
-        raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed")
+    content_type = file.content_type or ""
+    
+    # Check if it's an image by extension if content_type is missing
+    if content_type not in allowed_types:
+        if file.filename:
+            ext = file.filename.lower().split('.')[-1]
+            if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+                content_type = f"image/{ext if ext != 'jpg' else 'jpeg'}"
+            else:
+                raise HTTPException(status_code=400, detail=f"Invalid file type: {content_type}. Only JPG, PNG, GIF, WEBP allowed")
+        else:
+            raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed")
     
     # Check file size (max 5MB)
     file_content = await file.read()
+    file_size_mb = len(file_content) / (1024 * 1024)
+    print(f"File size: {file_size_mb:.2f}MB")
+    
     if len(file_content) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="File too large. Max 5MB")
+        raise HTTPException(status_code=400, detail=f"File too large ({file_size_mb:.1f}MB). Max 5MB")
     
     # Get Vercel Blob token from environment
     blob_token = os.getenv("BLOB_READ_WRITE_TOKEN")
@@ -614,7 +629,7 @@ async def upload_image(file: UploadFile = File(...)):
                 f"https://blob.vercel-storage.com/{file.filename}",
                 headers={
                     "Authorization": f"Bearer {blob_token}",
-                    "x-content-type": file.content_type or "image/jpeg"
+                    "x-content-type": content_type
                 },
                 content=file_content,
                 timeout=30.0
