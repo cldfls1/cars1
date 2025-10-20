@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { dealService, Deal, DealMessage } from '../services/deals'
 import { useAuthStore } from '../store/authStore'
-import { ArrowLeft, Send, CheckCircle, XCircle, Package } from 'lucide-react'
+import { ArrowLeft, Send, CheckCircle, XCircle, Package, User, ShoppingBag, AlertCircle } from 'lucide-react'
 
 const DealChat = () => {
   const { id } = useParams<{ id: string }>()
@@ -117,6 +117,7 @@ const DealChat = () => {
 
   const isAdmin = user?.role === 'admin'
   const isBuyer = deal.buyer_id === user?.id
+  const isSeller = deal.product?.seller === user?.username
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -200,15 +201,18 @@ const DealChat = () => {
         {isBuyer && deal.status === 'accepted' && (
           <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-lg">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">💳</span>
+              <CheckCircle size={24} className="text-green-700" />
               <p className="text-lg font-bold text-green-900 uppercase">
                 {i18n.language === 'ru' ? 'Способ оплаты' : 'Payment Method'}
               </p>
             </div>
             <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
-              <p className="text-sm font-semibold text-gray-700 mb-2">
-                {i18n.language === 'ru' ? '🎮 Steam карта / Steam Gift Card' : '🎮 Steam Gift Card'}
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <Package size={16} className="text-green-700" />
+                <p className="text-sm font-semibold text-gray-700">
+                  {i18n.language === 'ru' ? 'Steam Gift Card' : 'Steam Gift Card'}
+                </p>
+              </div>
               <p className="text-xs text-gray-600">
                 {i18n.language === 'ru'
                   ? 'Отправьте код Steam карты продавцу в чате. После отправки нажмите кнопку ниже.'
@@ -248,61 +252,73 @@ const DealChat = () => {
 
       {/* Chat */}
       <div className="card">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          💬 {i18n.language === 'ru' ? 'Чат со продавцом' : 'Chat with Seller'}
-        </h2>
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
+            <ShoppingBag className="text-white" size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">
+              {i18n.language === 'ru' ? 'Чат сделки' : 'Deal Chat'}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {isBuyer ? (i18n.language === 'ru' ? 'Вы покупатель' : 'You are buyer') : (i18n.language === 'ru' ? 'Вы продавец' : 'You are seller')}
+            </p>
+          </div>
+        </div>
 
-        <div className="border-2 border-gray-200 rounded-xl p-6 h-96 overflow-y-auto mb-4 bg-gradient-to-b from-gray-50 to-white">
+        <div className="border rounded-xl h-96 overflow-y-auto mb-4 bg-gray-50">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full">
-              <span className="text-6xl mb-4">💬</span>
-              <p className="text-center text-gray-600">
-                {i18n.language === 'ru' ? 'Нет сообщений. Начните общение!' : 'No messages. Start the conversation!'}
+              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                <Send className="text-gray-400" size={32} />
+              </div>
+              <p className="text-gray-500 text-sm">
+                {i18n.language === 'ru' ? 'Нет сообщений' : 'No messages yet'}
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="p-4 space-y-3">
               {messages.map((message) => {
                 const isMine = message.sender_id === user?.id
-                const senderName = isMine ? user?.username : (message.sender_id === seller?.id ? seller?.username : buyer?.username)
                 
                 return (
-                  <div
-                    key={message.id}
-                    className={`${
-                      message.is_system
-                        ? 'text-center'
-                        : isMine
-                        ? 'text-right'
-                        : 'text-left'
-                    }`}
-                  >
+                  <div key={message.id}>
                     {message.is_system ? (
-                      <div className="inline-block px-6 py-3 bg-blue-100 text-blue-800 rounded-full text-sm font-medium shadow-sm">
-                        ℹ️ {message.message}
+                      <div className="flex items-center justify-center my-4">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-xs text-blue-700">
+                          <AlertCircle size={14} />
+                          <span>{message.message}</span>
+                        </div>
                       </div>
                     ) : (
-                      <div className="inline-block max-w-md">
-                        {/* Sender name */}
-                        <p className={`text-xs font-semibold mb-1 px-1 ${
-                          isMine ? 'text-right text-primary-700' : 'text-left text-gray-600'
+                      <div className={`flex gap-2 ${
+                        isMine ? 'flex-row-reverse' : 'flex-row'
+                      }`}>
+                        {/* Avatar */}
+                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                          isMine ? 'bg-primary-600' : 'bg-gray-400'
                         }`}>
-                          {isMine ? '👤 ' + (user?.username || 'You') : '👥 ' + (senderName || 'Seller')}
-                        </p>
-                        {/* Message bubble */}
-                        <div
-                          className={`px-5 py-3 rounded-2xl shadow-md ${
+                          <User className="text-white" size={16} />
+                        </div>
+                        
+                        {/* Message */}
+                        <div className={`flex flex-col max-w-sm ${
+                          isMine ? 'items-end' : 'items-start'
+                        }`}>
+                          <div className={`px-4 py-2 rounded-2xl ${
                             isMine
-                              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-br-sm'
-                              : 'bg-white border-2 border-gray-200 text-gray-900 rounded-bl-sm'
-                          }`}
-                        >
-                          <p className="break-words">{message.message}</p>
-                          <p className={`text-xs mt-2 ${
-                            isMine ? 'text-primary-100' : 'text-gray-500'
+                              ? 'bg-primary-600 text-white rounded-br-md'
+                              : 'bg-white text-gray-900 border border-gray-200 rounded-bl-md'
                           }`}>
-                            ⏰ {new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                          </p>
+                            <p className="text-sm break-words">{message.message}</p>
+                          </div>
+                          <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
+                            <span className="font-semibold">
+                              {isMine ? (user?.username || 'You') : (isBuyer ? seller?.username || 'Seller' : buyer?.username || 'Buyer')}
+                            </span>
+                            <span>•</span>
+                            <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -314,22 +330,21 @@ const DealChat = () => {
           )}
         </div>
 
-        <form onSubmit={handleSendMessage} className="flex gap-2">
+        <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={t('type_message')}
-            className="input flex-1"
+            placeholder={i18n.language === 'ru' ? 'Введите сообщение...' : 'Type a message...'}
+            className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-full focus:outline-none focus:border-primary-500 transition"
             disabled={['completed', 'rejected', 'cancelled'].includes(deal.status)}
           />
           <button
             type="submit"
             disabled={sending || !newMessage.trim() || ['completed', 'rejected', 'cancelled'].includes(deal.status)}
-            className="btn btn-primary flex items-center space-x-2"
+            className="w-12 h-12 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 rounded-full flex items-center justify-center transition shadow-lg hover:shadow-xl"
           >
-            <Send size={20} />
-            <span>{t('send_message')}</span>
+            <Send size={20} className="text-white" />
           </button>
         </form>
       </div>
