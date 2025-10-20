@@ -356,7 +356,10 @@ const DealChat = () => {
                           </div>
                           <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
                             <span className="font-semibold">
-                              {isMine ? (user?.username || 'You') : (message.sender_id === deal.buyer_id ? buyer?.username || 'Buyer' : seller?.username || 'Seller')}
+                              {message.sender_id === deal.buyer_id 
+                                ? (buyer?.username || 'Buyer')
+                                : (seller?.username || 'Seller')
+                              }
                             </span>
                             <span>•</span>
                             <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
