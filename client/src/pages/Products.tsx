@@ -1,30 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { productService, Product, Category } from '../services/products'
-import { formatPrice } from '../lib/utils'
+import { productService, Product } from '../services/products'
 import { ShoppingCart, Filter } from 'lucide-react'
 
 const Products = () => {
   const { t, i18n } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>(
-    searchParams.get('category') ? parseInt(searchParams.get('category')!) : undefined
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
+    searchParams.get('category') || undefined
   )
 
   useEffect(() => {
     loadData()
-  }, [i18n.language, selectedCategory])
+  }, [selectedCategory])
 
   const loadData = async () => {
     setLoading(true)
     try {
       const [productsData, categoriesData] = await Promise.all([
-        productService.getProducts(selectedCategory, i18n.language),
-        productService.getCategories(i18n.language),
+        productService.getProducts(selectedCategory),
+        productService.getCategories(),
       ])
       setProducts(productsData)
       setCategories(categoriesData)
@@ -35,10 +34,10 @@ const Products = () => {
     }
   }
 
-  const handleCategoryChange = (categoryId: number | undefined) => {
-    setSelectedCategory(categoryId)
-    if (categoryId) {
-      setSearchParams({ category: categoryId.toString() })
+  const handleCategoryChange = (category: string | undefined) => {
+    setSelectedCategory(category)
+    if (category) {
+      setSearchParams({ category })
     } else {
       setSearchParams({})
     }
@@ -67,15 +66,15 @@ const Products = () => {
               </button>
               {categories.map((category) => (
                 <button
-                  key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
+                  key={category}
+                  onClick={() => handleCategoryChange(category)}
                   className={`w-full text-left px-4 py-2 rounded-lg transition ${
-                    selectedCategory === category.id
+                    selectedCategory === category
                       ? 'bg-primary-100 text-primary-700 font-medium'
                       : 'hover:bg-gray-100'
                   }`}
                 >
-                  {category.name}
+                  {category}
                 </button>
               ))}
             </div>
@@ -117,7 +116,7 @@ const Products = () => {
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary-600">
-                      {formatPrice(product.price, product.currency)}
+                      ${product.price}
                     </span>
                     <Link
                       to={`/products/${product.id}`}
