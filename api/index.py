@@ -10,8 +10,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from database import get_db, engine, Base
-from models import User, Product, Deal, Message
+from .database import get_db, engine, Base
+from .models import User, Product, Deal, Message
 
 app = FastAPI(
     title="CarX Mods Club API",
