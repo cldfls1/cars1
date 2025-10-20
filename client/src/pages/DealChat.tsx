@@ -16,6 +16,8 @@ const DealChat = () => {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [seller, setSeller] = useState<any>(null)
+  const [buyer, setBuyer] = useState<any>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -40,6 +42,11 @@ const DealChat = () => {
     try {
       const data = await dealService.getDeal(parseInt(id!))
       setDeal(data)
+      // Mock users based on product seller
+      if (data.product) {
+        setSeller({ id: 2, username: data.product.seller })
+      }
+      setBuyer({ id: data.buyer_id, username: 'Buyer' })
     } catch (error) {
       console.error('Failed to load deal:', error)
     } finally {
@@ -191,20 +198,28 @@ const DealChat = () => {
 
         {/* Buyer Payment */}
         {isBuyer && deal.status === 'accepted' && (
-          <div className="mt-6 p-6 bg-green-50 border-2 border-green-200 rounded-xl">
-            <p className="text-sm font-bold text-green-900 mb-2 uppercase">
-              {i18n.language === 'ru' ? 'Готово к оплате' : 'Ready for Payment'}
-            </p>
-            <p className="text-gray-600 text-sm mb-4">
-              {i18n.language === 'ru' 
-                ? 'Нажмите кнопку после отправки оплаты продавцу'
-                : 'Click button after sending payment to seller'}
-            </p>
+          <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">💳</span>
+              <p className="text-lg font-bold text-green-900 uppercase">
+                {i18n.language === 'ru' ? 'Способ оплаты' : 'Payment Method'}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
+              <p className="text-sm font-semibold text-gray-700 mb-2">
+                {i18n.language === 'ru' ? '🎮 Steam карта / Steam Gift Card' : '🎮 Steam Gift Card'}
+              </p>
+              <p className="text-xs text-gray-600">
+                {i18n.language === 'ru'
+                  ? 'Отправьте код Steam карты продавцу в чате. После отправки нажмите кнопку ниже.'
+                  : 'Send the Steam gift card code to seller in chat. Click the button below after sending.'}
+              </p>
+            </div>
             <button
               onClick={handleSubmitPayment}
-              className="btn btn-primary w-full py-3 text-lg font-bold"
+              className="btn btn-primary w-full py-3 text-lg font-bold shadow-md hover:shadow-xl transition"
             >
-              {i18n.language === 'ru' ? '✓ Я оплатил' : '✓ I Paid'}
+              ✓ {i18n.language === 'ru' ? 'Я отправил код Steam карты' : 'I Sent Steam Card Code'}
             </button>
           </div>
         )}
@@ -237,46 +252,63 @@ const DealChat = () => {
           💬 {i18n.language === 'ru' ? 'Чат со продавцом' : 'Chat with Seller'}
         </h2>
 
-        <div className="border-2 border-gray-200 rounded-xl p-6 h-96 overflow-y-auto mb-4 bg-white">
+        <div className="border-2 border-gray-200 rounded-xl p-6 h-96 overflow-y-auto mb-4 bg-gradient-to-b from-gray-50 to-white">
           {messages.length === 0 ? (
-            <p className="text-center text-gray-600">
-              {i18n.language === 'ru' ? 'Нет сообщений' : 'No messages'}
-            </p>
+            <div className="flex flex-col items-center justify-center h-full">
+              <span className="text-6xl mb-4">💬</span>
+              <p className="text-center text-gray-600">
+                {i18n.language === 'ru' ? 'Нет сообщений. Начните общение!' : 'No messages. Start the conversation!'}
+              </p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`${
-                    message.is_system
-                      ? 'text-center'
-                      : message.sender_id === user?.id
-                      ? 'text-right'
-                      : 'text-left'
-                  }`}
-                >
-                  {message.is_system ? (
-                    <div className="inline-block px-4 py-2 bg-gray-200 text-gray-700 rounded-full text-sm">
-                      {message.message}
-                    </div>
-                  ) : (
-                    <div
-                      className={`inline-block max-w-xs px-4 py-2 rounded-lg ${
-                        message.sender_id === user?.id
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-white border border-gray-300 text-gray-900'
-                      }`}
-                    >
-                      <p>{message.message}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.sender_id === user?.id ? 'text-primary-100' : 'text-gray-500'
-                      }`}>
-                        {new Date(message.created_at).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="space-y-4">
+              {messages.map((message) => {
+                const isMine = message.sender_id === user?.id
+                const senderName = isMine ? user?.username : (message.sender_id === seller?.id ? seller?.username : buyer?.username)
+                
+                return (
+                  <div
+                    key={message.id}
+                    className={`${
+                      message.is_system
+                        ? 'text-center'
+                        : isMine
+                        ? 'text-right'
+                        : 'text-left'
+                    }`}
+                  >
+                    {message.is_system ? (
+                      <div className="inline-block px-6 py-3 bg-blue-100 text-blue-800 rounded-full text-sm font-medium shadow-sm">
+                        ℹ️ {message.message}
+                      </div>
+                    ) : (
+                      <div className="inline-block max-w-md">
+                        {/* Sender name */}
+                        <p className={`text-xs font-semibold mb-1 px-1 ${
+                          isMine ? 'text-right text-primary-700' : 'text-left text-gray-600'
+                        }`}>
+                          {isMine ? '👤 ' + (user?.username || 'You') : '👥 ' + (senderName || 'Seller')}
+                        </p>
+                        {/* Message bubble */}
+                        <div
+                          className={`px-5 py-3 rounded-2xl shadow-md ${
+                            isMine
+                              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-br-sm'
+                              : 'bg-white border-2 border-gray-200 text-gray-900 rounded-bl-sm'
+                          }`}
+                        >
+                          <p className="break-words">{message.message}</p>
+                          <p className={`text-xs mt-2 ${
+                            isMine ? 'text-primary-100' : 'text-gray-500'
+                          }`}>
+                            ⏰ {new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
               <div ref={messagesEndRef} />
             </div>
           )}
