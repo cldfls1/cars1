@@ -303,17 +303,6 @@ const DealChat = () => {
         )}
       </div>
 
-      {/* DEBUG INFO */}
-      <div className="mt-4 p-4 bg-red-100 border-2 border-red-500 rounded text-xs">
-        <p className="font-bold mb-2">🔴 DEBUG:</p>
-        <p>seller.id: {seller?.id}</p>
-        <p>seller.username: {seller?.username}</p>
-        <p>buyer.id: {buyer?.id}</p>
-        <p>buyer.username: {buyer?.username}</p>
-        <p>user.id: {user?.id}</p>
-        <p>user.username: {user?.username}</p>
-      </div>
-
       {/* Chat */}
       <div className="card">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
@@ -378,7 +367,7 @@ const DealChat = () => {
                           </div>
                           <div className={`flex items-center gap-1 mt-1 px-2 text-xs text-gray-500`}>
                             <span className="font-semibold">
-                              {getSenderName(message.sender_id)} (ID:{message.sender_id})
+                              {getSenderName(message.sender_id)}
                             </span>
                             <span>•</span>
                             <span>{new Date(message.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
