@@ -43,6 +43,12 @@ class LoginRequest(BaseModel):
     username: str
     password: str
 
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+    email: Optional[str] = None
+    telegram_id: Optional[str] = None
+
 # In-memory storage
 products_db = [
     {
@@ -101,19 +107,28 @@ def login(request: LoginRequest):
     }
 
 @app.post("/api/auth/register")
-def register(username: str, email: str, password: str):
-    if any(u["username"] == username for u in users_db):
+def register(request: RegisterRequest):
+    if any(u["username"] == request.username for u in users_db):
         raise HTTPException(status_code=400, detail="Username already exists")
     
     new_user = {
         "id": len(users_db) + 1,
-        "username": username,
-        "email": email,
+        "username": request.username,
+        "email": request.email or "",
         "role": "user",
-        "password": password
+        "password": request.password
     }
     users_db.append(new_user)
-    return {"message": "User registered successfully", "user_id": new_user["id"]}
+    return {
+        "message": "User registered successfully",
+        "access_token": f"token_{new_user['username']}",
+        "user": {
+            "id": new_user["id"],
+            "username": new_user["username"],
+            "email": new_user["email"],
+            "role": new_user["role"]
+        }
+    }
 
 # Products
 @app.get("/api/products", response_model=List[Product])
