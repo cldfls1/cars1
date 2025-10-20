@@ -86,13 +86,13 @@ async def init_database(db: AsyncSession = Depends(get_db)):
         db.add_all([admin, seller])
         await db.commit()
         
-        # Products
+        # Products (all from seller user)
         products = [
-            Product(title="BMW M3 E46 Mod", description="High quality BMW M3 E46 mod", price=9.99, category="Cars", seller="ModMaker123", image_url="https://via.placeholder.com/300x200"),
-            Product(title="Custom Sound Pack", description="Realistic engine sounds pack", price=4.99, category="Audio", seller="SoundPro", image_url="https://via.placeholder.com/300x200"),
-            Product(title="Drift Map Bundle", description="5 amazing drift tracks", price=14.99, category="Maps", seller="MapMaster", image_url="https://via.placeholder.com/300x200"),
-            Product(title="Racing Livery Pack", description="Professional racing liveries", price=7.99, category="Liveries", seller="DesignPro", image_url="https://via.placeholder.com/300x200"),
-            Product(title="Turbo Performance Kit", description="Upgrade your car performance", price=12.99, category="Parts", seller="TuningExp", image_url="https://via.placeholder.com/300x200"),
+            Product(title="BMW M3 E46 Mod", description="High quality BMW M3 E46 mod", price=9.99, category="Cars", seller="seller", image_url="https://via.placeholder.com/300x200"),
+            Product(title="Custom Sound Pack", description="Realistic engine sounds pack", price=4.99, category="Audio", seller="seller", image_url="https://via.placeholder.com/300x200"),
+            Product(title="Drift Map Bundle", description="5 amazing drift tracks", price=14.99, category="Maps", seller="seller", image_url="https://via.placeholder.com/300x200"),
+            Product(title="Racing Livery Pack", description="Professional racing liveries", price=7.99, category="Liveries", seller="seller", image_url="https://via.placeholder.com/300x200"),
+            Product(title="Turbo Performance Kit", description="Upgrade your car performance", price=12.99, category="Parts", seller="seller", image_url="https://via.placeholder.com/300x200"),
         ]
         db.add_all(products)
         await db.commit()
