@@ -95,7 +95,9 @@ const Layout = () => {
 
               {isAuthenticated ? (
                 <>
-                  <span className="text-gray-900 text-xs uppercase tracking-wider px-3 py-1 border border-gray-300">{user?.username}</span>
+                  <span className="text-gray-900 text-xs uppercase tracking-wider px-3 py-1 border border-gray-300">
+                    {user?.username || 'USER'}
+                  </span>
                   <button
                     onClick={logout}
                     className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1"
