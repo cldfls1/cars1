@@ -308,7 +308,7 @@ const AdminPanel = () => {
                     </label>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {i18n.language === 'ru' ? 'Макс. 5MB. Форматы: JPG, PNG, GIF, WEBP' : 'Max 5MB. Formats: JPG, PNG, GIF, WEBP'}
+                    {i18n.language === 'ru' ? 'Макс. 5MB. Форматы: JPG, PNG, GIF, WEBP, ICO, SVG' : 'Max 5MB. Formats: JPG, PNG, GIF, WEBP, ICO, SVG'}
                   </p>
                 </div>
                 {productForm.image_url && (

@@ -595,17 +595,28 @@ async def upload_image(file: UploadFile = File(...)):
     print(f"Upload attempt - filename: {file.filename}, content_type: {file.content_type}")
     
     # Validate file type - be more lenient
-    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/x-icon", "image/vnd.microsoft.icon", "image/svg+xml"]
+    allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'ico', 'svg']
     content_type = file.content_type or ""
     
     # Check if it's an image by extension if content_type is missing
     if content_type not in allowed_types:
         if file.filename:
             ext = file.filename.lower().split('.')[-1]
-            if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
-                content_type = f"image/{ext if ext != 'jpg' else 'jpeg'}"
+            if ext in allowed_extensions:
+                # Map extension to proper content type
+                type_map = {
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'png': 'image/png',
+                    'gif': 'image/gif',
+                    'webp': 'image/webp',
+                    'ico': 'image/x-icon',
+                    'svg': 'image/svg+xml'
+                }
+                content_type = type_map.get(ext, 'image/jpeg')
             else:
-                raise HTTPException(status_code=400, detail=f"Invalid file type: {content_type}. Only JPG, PNG, GIF, WEBP allowed")
+                raise HTTPException(status_code=400, detail=f"Invalid file extension: .{ext}. Allowed: JPG, PNG, GIF, WEBP, ICO, SVG")
         else:
             raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed")
     
