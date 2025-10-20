@@ -1,0 +1,15 @@
+{
+  "name": "carxmods-club",
+  "version": "1.0.0",
+  "description": "Trading platform for CarX mods",
+  "scripts": {
+    "dev:api": "cd api && uvicorn main:app --reload --port 8000",
+    "dev:client": "cd client && npm run dev",
+    "install:all": "cd api && pip install -r requirements.txt && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "init-db": "cd api && python init_db.py"
+  },
+  "keywords": ["carx", "mods", "trading"],
+  "author": "",
+  "license": "MIT"
+}
