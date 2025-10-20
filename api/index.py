@@ -405,9 +405,16 @@ async def get_deal(deal_id: int, db: AsyncSession = Depends(get_db)):
     )
     product = prod_result.scalar_one_or_none()
     
+    # Get buyer username
+    buyer_result = await db.execute(
+        select(User).where(User.id == deal.buyer_id)
+    )
+    buyer = buyer_result.scalar_one_or_none()
+    
     return {
         "id": deal.id,
         "buyer_id": deal.buyer_id,
+        "buyer_username": buyer.username if buyer else "Unknown",
         "product_id": deal.product_id,
         "status": deal.status,
         "created_at": deal.created_at.isoformat(),
@@ -417,6 +424,7 @@ async def get_deal(deal_id: int, db: AsyncSession = Depends(get_db)):
             "title": product.title,
             "description": product.description,
             "price": product.price,
+            "seller": product.seller,
             "image_url": product.image_url
         } if product else None
     }

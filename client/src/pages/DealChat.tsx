@@ -42,11 +42,11 @@ const DealChat = () => {
     try {
       const data = await dealService.getDeal(parseInt(id!))
       setDeal(data)
-      // Mock users based on product seller
+      // Set seller and buyer info
       if (data.product) {
         setSeller({ id: 2, username: data.product.seller })
       }
-      setBuyer({ id: data.buyer_id, username: 'Buyer' })
+      setBuyer({ id: data.buyer_id, username: data.buyer_username || 'Buyer' })
     } catch (error) {
       console.error('Failed to load deal:', error)
     } finally {
