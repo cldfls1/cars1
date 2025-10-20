@@ -1,45 +1,27 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { productService, Product } from '../services/products'
-import { ShoppingCart, Filter } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 
 const Products = () => {
   const { t, i18n } = useTranslation()
-  const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
-    searchParams.get('category') || undefined
-  )
 
   useEffect(() => {
     loadData()
-  }, [selectedCategory])
+  }, [])
 
   const loadData = async () => {
     setLoading(true)
     try {
-      const [productsData, categoriesData] = await Promise.all([
-        productService.getProducts(selectedCategory),
-        productService.getCategories(),
-      ])
+      const productsData = await productService.getProducts()
       setProducts(productsData)
-      setCategories(categoriesData)
     } catch (error) {
       console.error('Failed to load data:', error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleCategoryChange = (category: string | undefined) => {
-    setSelectedCategory(category)
-    if (category) {
-      setSearchParams({ category })
-    } else {
-      setSearchParams({})
     }
   }
 
@@ -75,46 +57,11 @@ const Products = () => {
         </script>
       )}
       
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar - Categories */}
-        <aside className="w-full md:w-64 flex-shrink-0">
-          <div className="card sticky top-4">
-            <div className="flex items-center space-x-2 mb-4">
-              <Filter size={20} className="text-primary-600" />
-              <h2 className="text-lg font-semibold">{t('category')}</h2>
-            </div>
-            <div className="space-y-2">
-              <button
-                onClick={() => handleCategoryChange(undefined)}
-                className={`w-full text-left px-4 py-2 rounded-lg transition ${
-                  !selectedCategory
-                    ? 'bg-primary-100 text-primary-700 font-medium'
-                    : 'hover:bg-gray-100'
-                }`}
-              >
-                {t('all_products')}
-              </button>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryChange(category)}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition ${
-                    selectedCategory === category
-                      ? 'bg-primary-100 text-primary-700 font-medium'
-                      : 'hover:bg-gray-100'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
+      <div>
         {/* Products Grid */}
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            {t('all_products')}
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-8">
+            {i18n.language === 'ru' ? 'Мод паки' : 'Mod Packs'}
           </h1>
 
           {loading ? (

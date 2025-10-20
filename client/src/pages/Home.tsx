@@ -82,12 +82,12 @@ const Home = () => {
       <div className="mb-32">
         <div className="mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4">
-            {i18n.language === 'ru' ? 'Популярные моды' : 'Popular Mods'}
+            {i18n.language === 'ru' ? 'Мод паки' : 'Mod Packs'}
           </h2>
           <p className="text-lg text-gray-500">
             {i18n.language === 'ru' 
-              ? 'Лучшие моды для CarX Street'
-              : 'Best mods for CarX Street'}
+              ? 'Готовые пакеты модов для CarX Street'
+              : 'Ready-made mod packs for CarX Street'}
           </p>
         </div>
         

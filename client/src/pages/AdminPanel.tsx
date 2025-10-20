@@ -39,7 +39,7 @@ const AdminPanel = () => {
     title: '',
     description: '',
     price: 0,
-    category: 'Cars',
+    category: 'Mods',
     seller: '',
     image_url: ''
   })
@@ -89,7 +89,7 @@ const AdminPanel = () => {
 
   const handleAddProduct = () => {
     setEditingProduct(null)
-    setProductForm({ title: '', description: '', price: 0, category: 'Cars', seller: '', image_url: '' })
+    setProductForm({ title: '', description: '', price: 0, category: 'Mods', seller: '', image_url: '' })
     setShowProductForm(true)
   }
 
@@ -230,7 +230,7 @@ const AdminPanel = () => {
                   rows={3}
                   required
                 />
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <input
                     type="number"
                     step="0.01"
@@ -240,17 +240,6 @@ const AdminPanel = () => {
                     className="input"
                     required
                   />
-                  <select
-                    value={productForm.category}
-                    onChange={(e) => setProductForm({...productForm, category: e.target.value})}
-                    className="input"
-                  >
-                    <option value="Cars">Cars</option>
-                    <option value="Audio">Audio</option>
-                    <option value="Maps">Maps</option>
-                    <option value="Liveries">Liveries</option>
-                    <option value="Parts">Parts</option>
-                  </select>
                   <input
                     type="text"
                     placeholder={i18n.language === 'ru' ? 'Продавец' : 'Seller'}
