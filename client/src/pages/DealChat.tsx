@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { dealService, Deal, DealMessage } from '../services/deals'
 import { useAuthStore } from '../store/authStore'
-import { formatDate, formatPrice } from '../lib/utils'
-import { ArrowLeft, Send, CheckCircle, XCircle } from 'lucide-react'
+import { ArrowLeft, Send, CheckCircle, XCircle, Package } from 'lucide-react'
 
 const DealChat = () => {
   const { id } = useParams<{ id: string }>()
@@ -109,7 +108,7 @@ const DealChat = () => {
     )
   }
 
-  const isAdmin = user?.is_admin
+  const isAdmin = user?.role === 'admin'
   const isBuyer = deal.buyer_id === user?.id
 
   return (
@@ -124,70 +123,109 @@ const DealChat = () => {
 
       {/* Deal Info */}
       <div className="card mb-6">
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Deal #{deal.id}</h1>
-            <p className="text-gray-600 mt-1">{formatDate(deal.created_at)}</p>
+            <h1 className="text-3xl font-bold text-gray-900">Deal #{deal.id}</h1>
+            <p className="text-gray-600 mt-2">
+              {new Date(deal.created_at).toLocaleDateString()} {new Date(deal.created_at).toLocaleTimeString()}
+            </p>
           </div>
-          <div className={`px-4 py-2 rounded-lg font-medium ${
+          <div className={`px-6 py-3 rounded-lg font-bold uppercase text-sm ${
             deal.status === 'completed' ? 'bg-green-100 text-green-800' :
             deal.status === 'rejected' || deal.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-            'bg-blue-100 text-blue-800'
+            deal.status === 'payment_sent' ? 'bg-yellow-100 text-yellow-800' :
+            deal.status === 'accepted' ? 'bg-blue-100 text-blue-800' :
+            'bg-gray-100 text-gray-800'
           }`}>
-            {t(deal.status)}
+            {deal.status === 'pending' && (i18n.language === 'ru' ? 'В ожидании' : 'Pending')}
+            {deal.status === 'accepted' && (i18n.language === 'ru' ? 'Принято' : 'Accepted')}
+            {deal.status === 'payment_sent' && (i18n.language === 'ru' ? 'Оплачено' : 'Paid')}
+            {deal.status === 'completed' && (i18n.language === 'ru' ? 'Завершено' : 'Completed')}
+            {deal.status === 'rejected' && (i18n.language === 'ru' ? 'Отклонено' : 'Rejected')}
           </div>
         </div>
 
         {deal.product && (
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-900">{deal.product.title}</h3>
-            <p className="text-2xl font-bold text-primary-600 mt-2">
-              {formatPrice(deal.product.price, deal.product.currency)}
-            </p>
+          <div className="flex items-center gap-4 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+            {deal.product.image_url ? (
+              <img src={deal.product.image_url} alt={deal.product.title} className="w-24 h-24 object-cover rounded-lg" />
+            ) : (
+              <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                <Package size={32} className="text-gray-400" />
+              </div>
+            )}
+            <div className="flex-1">
+              <h3 className="font-bold text-xl text-gray-900 mb-1">{deal.product.title}</h3>
+              <p className="text-gray-600 text-sm mb-2">{deal.product.description}</p>
+              <p className="text-3xl font-black text-gray-900">
+                ${deal.product.price}
+              </p>
+            </div>
           </div>
         )}
 
         {/* Admin Actions */}
         {isAdmin && deal.status === 'pending' && (
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={() => handleUpdateStatus('accepted')}
-              className="btn btn-primary flex-1 flex items-center justify-center space-x-2"
-            >
-              <CheckCircle size={20} />
-              <span>{t('accept_deal')}</span>
-            </button>
-            <button
-              onClick={() => handleUpdateStatus('rejected')}
-              className="btn btn-danger flex-1 flex items-center justify-center space-x-2"
-            >
-              <XCircle size={20} />
-              <span>{t('reject_deal')}</span>
-            </button>
+          <div className="mt-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl">
+            <p className="text-sm font-bold text-blue-900 mb-4 uppercase">
+              {i18n.language === 'ru' ? 'Действия администратора' : 'Admin Actions'}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleUpdateStatus('accepted')}
+                className="btn btn-primary flex-1 flex items-center justify-center space-x-2 py-3"
+              >
+                <CheckCircle size={20} />
+                <span>{i18n.language === 'ru' ? 'Принять' : 'Accept'}</span>
+              </button>
+              <button
+                onClick={() => handleUpdateStatus('rejected')}
+                className="btn btn-danger flex-1 flex items-center justify-center space-x-2 py-3"
+              >
+                <XCircle size={20} />
+                <span>{i18n.language === 'ru' ? 'Отклонить' : 'Reject'}</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Buyer Payment - Simplified */}
+        {/* Buyer Payment */}
         {isBuyer && deal.status === 'accepted' && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+          <div className="mt-6 p-6 bg-green-50 border-2 border-green-200 rounded-xl">
+            <p className="text-sm font-bold text-green-900 mb-2 uppercase">
+              {i18n.language === 'ru' ? 'Готово к оплате' : 'Ready for Payment'}
+            </p>
+            <p className="text-gray-600 text-sm mb-4">
+              {i18n.language === 'ru' 
+                ? 'Нажмите кнопку после отправки оплаты продавцу'
+                : 'Click button after sending payment to seller'}
+            </p>
             <button
               onClick={handleSubmitPayment}
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full py-3 text-lg font-bold"
             >
-              {t('submit_payment')}
+              {i18n.language === 'ru' ? '✓ Я оплатил' : '✓ I Paid'}
             </button>
           </div>
         )}
 
         {/* Admin Complete Deal */}
         {isAdmin && deal.status === 'payment_sent' && (
-          <div className="mt-4">
+          <div className="mt-6 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+            <p className="text-sm font-bold text-yellow-900 mb-2 uppercase">
+              {i18n.language === 'ru' ? 'Ожидает подтверждения' : 'Awaiting Confirmation'}
+            </p>
+            <p className="text-gray-600 text-sm mb-4">
+              {i18n.language === 'ru' 
+                ? 'Покупатель отправил оплату. Проверьте и завершите сделку.'
+                : 'Buyer sent payment. Verify and complete the deal.'}
+            </p>
             <button
               onClick={() => handleUpdateStatus('completed')}
-              className="btn btn-primary w-full flex items-center justify-center space-x-2"
+              className="btn btn-primary w-full flex items-center justify-center space-x-2 py-3 text-lg font-bold"
             >
-              <CheckCircle size={20} />
-              <span>{t('complete_deal')}</span>
+              <CheckCircle size={24} />
+              <span>{i18n.language === 'ru' ? 'Завершить сделку' : 'Complete Deal'}</span>
             </button>
           </div>
         )}
@@ -195,11 +233,11 @@ const DealChat = () => {
 
       {/* Chat */}
       <div className="card">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
-          {i18n.language === 'ru' ? 'Чат' : 'Chat'}
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          💬 {i18n.language === 'ru' ? 'Чат со продавцом' : 'Chat with Seller'}
         </h2>
 
-        <div className="border rounded-lg p-4 h-96 overflow-y-auto mb-4 bg-gray-50">
+        <div className="border-2 border-gray-200 rounded-xl p-6 h-96 overflow-y-auto mb-4 bg-white">
           {messages.length === 0 ? (
             <p className="text-center text-gray-600">
               {i18n.language === 'ru' ? 'Нет сообщений' : 'No messages'}

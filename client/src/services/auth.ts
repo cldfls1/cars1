@@ -21,14 +21,15 @@ export interface AuthResponse {
 export interface User {
   id: number
   username: string
-  is_admin: boolean
-  is_banned: boolean
-  is_online: boolean
-  email?: string
+  email: string
+  role: string
+  is_admin?: boolean
+  is_banned?: boolean
+  is_online?: boolean
   telegram_id?: string
-  notify_email: boolean
-  notify_telegram: boolean
-  notify_push: boolean
+  notify_email?: boolean
+  notify_telegram?: boolean
+  notify_push?: boolean
 }
 
 export const authService = {
