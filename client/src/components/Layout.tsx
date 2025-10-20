@@ -41,7 +41,7 @@ const Layout = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center hover:opacity-80 transition">
-              <img src="/logo.png" alt="CarxMods" className="h-10" />
+              <img src="/logo.png" alt="CarxMods" className="h-20" />
             </Link>
 
             {/* Center Navigation */}
@@ -139,7 +139,7 @@ const Layout = () => {
         <div className="container mx-auto px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
-              <img src="/logo.png" alt="CarxMods" className="h-8 mb-3" />
+              <img src="/logo.png" alt="CarxMods" className="h-16 mb-3" />
               <p className="text-gray-400 text-sm mb-4">
                 {i18n.language === 'ru' 
                   ? 'Премиум моды для CarX Street'

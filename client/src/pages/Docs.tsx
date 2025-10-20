@@ -8,6 +8,9 @@ const Docs = () => {
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <img src="/logo.png" alt="CarxMods" className="h-20" />
+          </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             {i18n.language === 'ru' ? 'Как купить моды' : 'How to Buy Mods'}
           </h1>

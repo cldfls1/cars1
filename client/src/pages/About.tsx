@@ -9,8 +9,11 @@ const About = () => {
       <div className="max-w-4xl mx-auto">
         {/* Hero */}
         <div className="text-center mb-16">
+          <div className="flex justify-center mb-6">
+            <img src="/logo.png" alt="CarxMods" className="h-20" />
+          </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            {i18n.language === 'ru' ? 'О CarxMods' : 'About CarxMods'}
+            {i18n.language === 'ru' ? 'О нас' : 'About Us'}
           </h1>
           <p className="text-xl text-gray-600">
             {i18n.language === 'ru' 
