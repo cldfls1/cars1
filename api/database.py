@@ -12,12 +12,15 @@ if not DATABASE_URL:
         "Settings > Environment Variables > DATABASE_URL"
     )
 
-# Neon uses postgres:// but SQLAlchemy needs postgresql+asyncpg://
+# Ensure we use asyncpg driver
+# Convert postgres:// or postgresql:// to postgresql+asyncpg://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://") and "+asyncpg" not in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 # Create async engine
-engine = create_async_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+engine = create_async_engine(DATABASE_URL, echo=False, pool_pre_ping=True, pool_size=5, max_overflow=10)
 
 # Session maker
 async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
