@@ -7,7 +7,7 @@ import { ArrowLeft, Send, CheckCircle, XCircle, Package, User, ShoppingBag, Aler
 
 const DealChat = () => {
   const { id } = useParams<{ id: string }>()
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const { user } = useAuthStore()
   const navigate = useNavigate()
 
@@ -117,7 +117,6 @@ const DealChat = () => {
 
   const isAdmin = user?.role === 'admin'
   const isBuyer = deal.buyer_id === user?.id
-  const isSeller = deal.product?.seller === user?.username
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
