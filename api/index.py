@@ -461,4 +461,60 @@ async def send_message(
         "created_at": new_message.created_at.isoformat()
     }
 
+# Admin endpoints
+@app.get("/api/admin/stats")
+async def get_admin_stats(db: AsyncSession = Depends(get_db)):
+    """Get admin statistics"""
+    # Count users
+    users_count = await db.execute(select(User))
+    total_users = len(users_count.scalars().all())
+    
+    # Count products
+    products_count = await db.execute(select(Product))
+    total_products = len(products_count.scalars().all())
+    
+    # Count completed deals
+    completed_deals_result = await db.execute(
+        select(Deal).where(Deal.status == "completed")
+    )
+    completed_deals = len(completed_deals_result.scalars().all())
+    
+    # Calculate revenue (sum of completed deal products)
+    total_revenue = 0.0
+    deals_result = await db.execute(
+        select(Deal).where(Deal.status == "completed")
+    )
+    for deal in deals_result.scalars():
+        product_result = await db.execute(
+            select(Product).where(Product.id == deal.product_id)
+        )
+        product = product_result.scalar_one_or_none()
+        if product:
+            total_revenue += product.price
+    
+    return {
+        "total_users": total_users,
+        "total_products": total_products,
+        "completed_deals": completed_deals,
+        "total_revenue": total_revenue
+    }
+
+@app.get("/api/admin/users")
+async def get_all_users(db: AsyncSession = Depends(get_db)):
+    """Get all users for admin panel"""
+    result = await db.execute(select(User))
+    users = result.scalars().all()
+    
+    return [
+        {
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "role": u.role,
+            "is_admin": u.role == "admin",
+            "is_banned": False  # Add this field to User model if needed
+        }
+        for u in users
+    ]
+
 # Export app for Vercel (ASGI)
