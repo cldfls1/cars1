@@ -1,7 +1,7 @@
 import { Outlet, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../store/authStore'
-import { Globe, ShoppingBag, Package, Shield, Info, Mail } from 'lucide-react'
+import { Globe, ShoppingBag, Package, Shield, Info, Mail, Home, LayoutDashboard } from 'lucide-react'
 
 const Layout = () => {
   const { t, i18n } = useTranslation()
@@ -47,7 +47,8 @@ const Layout = () => {
 
             {/* Center Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
+              <Link to="/" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1 flex items-center gap-1.5">
+                <Home size={14} />
                 {i18n.language === 'ru' ? 'Главная' : 'Home'}
                 <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
               </Link>
@@ -63,7 +64,8 @@ const Layout = () => {
                     {t('my_deals')}
                     <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
                   </Link>
-                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
+                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1 flex items-center gap-1.5">
+                    <LayoutDashboard size={14} />
                     {t('dashboard')}
                     <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
                   </Link>
