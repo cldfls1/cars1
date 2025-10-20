@@ -10,7 +10,8 @@ import {
   Star,
   CheckCircle,
   MessageSquare,
-  Lock
+  Lock,
+  ShoppingCart
 } from 'lucide-react'
 
 const Home = () => {
