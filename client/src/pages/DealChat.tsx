@@ -117,6 +117,7 @@ const DealChat = () => {
 
   const isAdmin = user?.role === 'admin'
   const isBuyer = deal.buyer_id === user?.id
+  const isSeller = deal.product?.seller === user?.username
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -223,6 +224,37 @@ const DealChat = () => {
               className="btn btn-primary w-full py-3 text-lg font-bold shadow-md hover:shadow-xl transition"
             >
               ✓ {i18n.language === 'ru' ? 'Я отправил код Steam карты' : 'I Sent Steam Card Code'}
+            </button>
+          </div>
+        )}
+
+        {/* Seller Complete Deal */}
+        {isSeller && deal.status === 'payment_sent' && (
+          <div className="mt-6 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-xl shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle size={24} className="text-yellow-700" />
+              <p className="text-lg font-bold text-yellow-900 uppercase">
+                {i18n.language === 'ru' ? 'Оплата получена?' : 'Payment Received?'}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-yellow-200 mb-4">
+              <p className="text-sm text-gray-700 mb-2">
+                {i18n.language === 'ru' 
+                  ? '💳 Покупатель сообщил об отправке Steam карты'
+                  : '💳 Buyer confirmed sending Steam card'}
+              </p>
+              <p className="text-xs text-gray-600">
+                {i18n.language === 'ru'
+                  ? 'Проверьте код Steam карты в чате выше. Если все верно - завершите сделку.'
+                  : 'Check the Steam card code in chat above. If correct - complete the deal.'}
+              </p>
+            </div>
+            <button
+              onClick={() => handleUpdateStatus('completed')}
+              className="btn btn-primary w-full flex items-center justify-center space-x-2 py-3 text-lg font-bold shadow-md hover:shadow-xl transition"
+            >
+              <CheckCircle size={24} />
+              <span>{i18n.language === 'ru' ? 'Подтвердить и завершить сделку' : 'Confirm & Complete Deal'}</span>
             </button>
           </div>
         )}
