@@ -45,6 +45,36 @@ const Products = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
+      {/* Schema.org JSON-LD for SEO */}
+      {products.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "itemListElement": products.map((product, index) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "item": {
+                "@type": "Product",
+                "name": product.title,
+                "description": product.description,
+                "image": product.image_url,
+                "offers": {
+                  "@type": "Offer",
+                  "price": product.price,
+                  "priceCurrency": "USD",
+                  "availability": "https://schema.org/InStock",
+                  "seller": {
+                    "@type": "Organization",
+                    "name": product.seller
+                  }
+                }
+              }
+            }))
+          })}
+        </script>
+      )}
+      
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar - Categories */}
         <aside className="w-full md:w-64 flex-shrink-0">

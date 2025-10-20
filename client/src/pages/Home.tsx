@@ -44,12 +44,12 @@ const Home = () => {
           </span>
         </div>
         <h1 className="text-7xl md:text-8xl font-bold text-gray-900 mb-8 tracking-tight leading-none">
-          Premium Mods
+          Premium CarX Street Mods
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed">
           {i18n.language === 'ru' 
-            ? 'Профессиональные моды для CarX. Безопасные сделки с гарантией качества.'
-            : 'Professional mods for CarX. Secure deals with quality guarantee.'}
+            ? 'Профессиональные моды для CarX Street. Купить моды на машины, карты, ливреи. Безопасные сделки с гарантией качества и мгновенной доставкой.'
+            : 'Professional mods for CarX Street. Buy car mods, maps, liveries, sound packs. Secure deals with quality guarantee and instant delivery.'}
         </p>
         <div className="flex items-center justify-center gap-4 flex-wrap mb-20">
           <Link to="/products" className="inline-flex items-center px-8 py-4 bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-all">

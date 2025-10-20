@@ -1,0 +1,11 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private pages
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://carxstreetmods.vercel.app/sitemap.xml
