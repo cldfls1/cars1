@@ -16,6 +16,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Docs from './pages/Docs'
 import Terms from './pages/Terms'
+import Privacy from './pages/Privacy'
 
 // Layout
 import Layout from './components/Layout'
@@ -42,6 +43,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           
           {isAuthenticated && (
             <>

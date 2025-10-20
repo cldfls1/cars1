@@ -72,14 +72,14 @@ const Layout = () => {
                   )}
                 </>
               )}
-              <a href="#" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
+              <Link to="/about" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
                 {i18n.language === 'ru' ? 'О нас' : 'About'}
                 <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
-              </a>
-              <a href="#" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
+              </Link>
+              <Link to="/contact" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
                 {i18n.language === 'ru' ? 'Контакты' : 'Contact'}
                 <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
-              </a>
+              </Link>
             </nav>
 
             {/* Right side */}
@@ -168,6 +168,9 @@ const Layout = () => {
                 </Link>
                 <Link to="/terms" className="block text-sm text-gray-400 hover:text-white transition">
                   {i18n.language === 'ru' ? 'Соглашение' : 'Terms'}
+                </Link>
+                <Link to="/privacy" className="block text-sm text-gray-400 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Конфиденциальность' : 'Privacy'}
                 </Link>
               </div>
             </div>
