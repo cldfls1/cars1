@@ -49,6 +49,16 @@ class RegisterRequest(BaseModel):
     email: Optional[str] = None
     telegram_id: Optional[str] = None
 
+class CreateDealRequest(BaseModel):
+    product_id: int
+
+class UpdateDealStatusRequest(BaseModel):
+    status: str
+    steam_card_code: Optional[str] = None
+
+class SendMessageRequest(BaseModel):
+    message: str
+
 # In-memory storage
 products_db = [
     {
@@ -79,6 +89,9 @@ users_db = [
 ]
 
 categories_db = ["Cars", "Audio", "Maps", "Liveries", "Parts"]
+
+deals_db = []
+messages_db = []
 
 # Routes
 @app.get("/")
@@ -187,6 +200,83 @@ def get_user(user_id: int):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"id": user["id"], "username": user["username"], "email": user["email"], "role": user["role"]}
+
+# Deals
+@app.post("/api/deals")
+def create_deal(request: CreateDealRequest):
+    product = next((p for p in products_db if p["id"] == request.product_id), None)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    new_deal = {
+        "id": len(deals_db) + 1,
+        "buyer_id": 1,  # Mock user
+        "product_id": request.product_id,
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+        "product": product
+    }
+    deals_db.append(new_deal)
+    return new_deal
+
+@app.get("/api/deals")
+def get_deals():
+    return deals_db
+
+@app.get("/api/deals/{deal_id}")
+def get_deal(deal_id: int):
+    deal = next((d for d in deals_db if d["id"] == deal_id), None)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    return deal
+
+@app.put("/api/deals/{deal_id}/status")
+def update_deal_status(deal_id: int, request: UpdateDealStatusRequest):
+    deal = next((d for d in deals_db if d["id"] == deal_id), None)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    
+    deal["status"] = request.status
+    deal["updated_at"] = datetime.now().isoformat()
+    
+    if request.status == "completed":
+        deal["completed_at"] = datetime.now().isoformat()
+    
+    # Add system message
+    system_message = {
+        "id": len(messages_db) + 1,
+        "deal_id": deal_id,
+        "sender_id": 0,
+        "message": f"Status updated to {request.status}",
+        "is_system": True,
+        "created_at": datetime.now().isoformat()
+    }
+    messages_db.append(system_message)
+    
+    return deal
+
+@app.get("/api/deals/{deal_id}/messages")
+def get_messages(deal_id: int):
+    deal_messages = [m for m in messages_db if m["deal_id"] == deal_id]
+    return deal_messages
+
+@app.post("/api/deals/{deal_id}/messages")
+def send_message(deal_id: int, request: SendMessageRequest):
+    deal = next((d for d in deals_db if d["id"] == deal_id), None)
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    
+    new_message = {
+        "id": len(messages_db) + 1,
+        "deal_id": deal_id,
+        "sender_id": 1,  # Mock user
+        "message": request.message,
+        "is_system": False,
+        "created_at": datetime.now().isoformat()
+    }
+    messages_db.append(new_message)
+    return new_message
 
 # Export app for Vercel (ASGI)
 # Vercel supports ASGI apps directly
