@@ -49,6 +49,14 @@ class UpdateDealStatusRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     message: str
 
+class ProductCreate(BaseModel):
+    title: str
+    description: str
+    price: float
+    category: str
+    seller: str
+    image_url: Optional[str] = None
+
 # Note: Tables should be initialized using init_db.py
 # Run: DATABASE_URL="your_neon_url" python api/init_db.py
 
