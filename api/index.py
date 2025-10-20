@@ -446,7 +446,6 @@ async def update_deal_status(
     
     # Update status
     deal.status = request.status
-    deal.updated_at = datetime.utcnow()
     
     if request.status == "completed":
         deal.completed_at = datetime.utcnow()
