@@ -90,12 +90,15 @@ const DealChat = () => {
   }
 
   const handleUpdateStatus = async (status: string) => {
+    alert(`Нажали кнопку! Статус: ${status}`)
     try {
       await dealService.updateDealStatus(parseInt(id!), status)
+      alert('✅ Статус обновлен!')
       loadDeal()
       loadMessages()
     } catch (error) {
       console.error('Failed to update status:', error)
+      alert(`❌ Ошибка: ${error}`)
     }
   }
 
