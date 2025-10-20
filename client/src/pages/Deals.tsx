@@ -20,18 +20,8 @@ const Deals = () => {
   const loadDeals = async () => {
     try {
       const data = await dealService.getDeals()
-      // Filter deals based on user role
-      // Buyers see deals where they are the buyer
-      // Sellers see deals for their products
-      const filteredData = data.filter(deal => {
-        if (!user) return false
-        // If user is buyer of this deal
-        if (deal.buyer_id === user.id) return true
-        // If user is seller of the product in this deal
-        if (deal.product && deal.product.seller === user.username) return true
-        return false
-      })
-      setDeals(filteredData)
+      // Show all deals for now - filtering can be added later if needed
+      setDeals(data)
     } catch (error) {
       console.error('Failed to load deals:', error)
     } finally {
