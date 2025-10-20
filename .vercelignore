@@ -1,6 +1,0 @@
-api/
-*.py
-requirements.txt
-Procfile
-runtime.txt
-*.bat

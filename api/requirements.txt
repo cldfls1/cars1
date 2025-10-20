@@ -1,12 +1,3 @@
-fastapi
-uvicorn
-sqlalchemy
-pyjwt
-python-multipart
-pydantic
-pydantic-settings
-python-dotenv
-asyncpg
-websockets
-httpx
-mangum
+fastapi==0.104.1
+pydantic==2.5.0
+mangum==0.17.0
