@@ -35,6 +35,7 @@ const AdminPanel = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [showProductForm, setShowProductForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [productForm, setProductForm] = useState({
     title: '',
     description: '',
@@ -249,13 +250,67 @@ const AdminPanel = () => {
                     required
                   />
                 </div>
-                <input
-                  type="url"
-                  placeholder={i18n.language === 'ru' ? 'URL изображения (https://...)' : 'Image URL (https://...)'}
-                  value={productForm.image_url}
-                  onChange={(e) => setProductForm({...productForm, image_url: e.target.value})}
-                  className="input"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {i18n.language === 'ru' ? 'Изображение мод пака' : 'Mod Pack Image'}
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      placeholder={i18n.language === 'ru' ? 'URL изображения (https://...)' : 'Image URL (https://...)'}
+                      value={productForm.image_url}
+                      onChange={(e) => setProductForm({...productForm, image_url: e.target.value})}
+                      className="input flex-1"
+                    />
+                    <label className="btn bg-blue-600 text-white cursor-pointer flex items-center gap-2 hover:bg-blue-700">
+                      {uploading ? (
+                        <>
+                          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                          <span>{i18n.language === 'ru' ? 'Загрузка...' : 'Uploading...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span>{i18n.language === 'ru' ? 'Загрузить' : 'Upload'}</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploading}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          
+                          setUploading(true)
+                          try {
+                            const formData = new FormData()
+                            formData.append('file', file)
+                            
+                            const response = await api.post('/upload/image', formData, {
+                              headers: { 'Content-Type': 'multipart/form-data' }
+                            })
+                            
+                            setProductForm({...productForm, image_url: response.data.url})
+                            alert(i18n.language === 'ru' ? 'Загружено успешно!' : 'Uploaded successfully!')
+                          } catch (error) {
+                            console.error('Upload failed:', error)
+                            alert(i18n.language === 'ru' ? 'Ошибка загрузки' : 'Upload failed')
+                          } finally {
+                            setUploading(false)
+                            e.target.value = ''
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {i18n.language === 'ru' ? 'Макс. 5MB. Форматы: JPG, PNG, GIF, WEBP' : 'Max 5MB. Formats: JPG, PNG, GIF, WEBP'}
+                  </p>
+                </div>
                 {productForm.image_url && (
                   <div className="mt-2">
                     <p className="text-sm text-gray-600 mb-2">{i18n.language === 'ru' ? 'Предпросмотр:' : 'Preview:'}</p>

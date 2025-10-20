@@ -1,7 +1,7 @@
 """
 Vercel serverless function entry point with PostgreSQL database
 """
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -9,6 +9,9 @@ from datetime import datetime
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+import os
+import base64
+import httpx
 
 from .database import get_db, engine, Base
 from .models import User, Product, Deal, Message
@@ -584,5 +587,49 @@ async def get_all_users(db: AsyncSession = Depends(get_db)):
         }
         for u in users
     ]
+
+# Image Upload
+@app.post("/api/upload/image")
+async def upload_image(file: UploadFile = File(...)):
+    """Upload image to Vercel Blob storage"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only images allowed")
+    
+    # Check file size (max 5MB)
+    file_content = await file.read()
+    if len(file_content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max 5MB")
+    
+    # Get Vercel Blob token from environment
+    blob_token = os.getenv("BLOB_READ_WRITE_TOKEN")
+    if not blob_token:
+        raise HTTPException(status_code=500, detail="Blob storage not configured")
+    
+    try:
+        # Upload to Vercel Blob
+        async with httpx.AsyncClient() as client:
+            response = await client.put(
+                f"https://blob.vercel-storage.com/{file.filename}",
+                headers={
+                    "Authorization": f"Bearer {blob_token}",
+                    "x-content-type": file.content_type or "image/jpeg"
+                },
+                content=file_content,
+                timeout=30.0
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=500, detail=f"Upload failed: {response.text}")
+            
+            result = response.json()
+            return {
+                "success": True,
+                "url": result.get("url"),
+                "filename": file.filename
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
 
 # Export app for Vercel (ASGI)
