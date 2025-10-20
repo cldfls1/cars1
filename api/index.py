@@ -450,15 +450,6 @@ async def update_deal_status(
     if request.status == "completed":
         deal.completed_at = datetime.utcnow()
     
-    # Add system message
-    system_message = Message(
-        deal_id=deal_id,
-        sender_id=0,
-        message=f"Status updated to {request.status}",
-        is_system=True
-    )
-    db.add(system_message)
-    
     await db.commit()
     await db.refresh(deal)
     
