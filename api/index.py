@@ -49,11 +49,8 @@ class UpdateDealStatusRequest(BaseModel):
 class SendMessageRequest(BaseModel):
     message: str
 
-# Startup: Create tables
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+# Note: Tables should be initialized using init_db.py
+# Run: DATABASE_URL="your_neon_url" python api/init_db.py
 
 # Routes
 @app.get("/")
