@@ -232,6 +232,39 @@ async def create_product(
         "created_at": new_product.created_at.isoformat()
     }
 
+@app.put("/api/products/{product_id}")
+async def update_product(product_id: int, request: ProductCreate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Product).where(Product.id == product_id)
+    )
+    product = result.scalar_one_or_none()
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Update fields
+    product.title = request.title
+    product.description = request.description
+    product.price = request.price
+    product.category = request.category
+    product.seller = request.seller
+    if request.image_url:
+        product.image_url = request.image_url
+    
+    await db.commit()
+    await db.refresh(product)
+    
+    return {
+        "id": product.id,
+        "title": product.title,
+        "description": product.description,
+        "price": product.price,
+        "category": product.category,
+        "seller": product.seller,
+        "image_url": product.image_url,
+        "created_at": product.created_at.isoformat()
+    }
+
 @app.delete("/api/products/{product_id}")
 async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(

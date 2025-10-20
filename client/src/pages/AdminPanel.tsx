@@ -123,8 +123,7 @@ const AdminPanel = () => {
     
     try {
       if (editingProduct) {
-        // TODO: Update endpoint
-        alert('Update not implemented yet')
+        await api.put(`/products/${editingProduct.id}`, productForm)
       } else {
         await api.post('/products', productForm)
       }
