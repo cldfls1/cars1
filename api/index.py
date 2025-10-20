@@ -61,6 +61,14 @@ class ProductCreate(BaseModel):
     seller: str
     image_url: Optional[str] = None
 
+class ProductUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    category: Optional[str] = None
+    seller: Optional[str] = None
+    image_url: Optional[str] = None
+
 # Note: Tables should be initialized using init_db.py
 # Run: DATABASE_URL="your_neon_url" python api/init_db.py
 
@@ -218,20 +226,16 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
 
 @app.post("/api/products")
 async def create_product(
-    title: str,
-    description: str,
-    price: float,
-    category: str,
-    seller: str,
+    product_data: ProductCreate,
     db: AsyncSession = Depends(get_db)
 ):
     new_product = Product(
-        title=title,
-        description=description,
-        price=price,
-        category=category,
-        seller=seller,
-        image_url="https://via.placeholder.com/300x200"
+        title=product_data.title,
+        description=product_data.description,
+        price=product_data.price,
+        category=product_data.category,
+        seller=product_data.seller,
+        image_url=product_data.image_url or "https://via.placeholder.com/300x200"
     )
     db.add(new_product)
     await db.commit()
