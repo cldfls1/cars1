@@ -172,6 +172,41 @@ const DealChat = () => {
           </div>
         )}
 
+        {/* Seller Actions - Accept/Reject Deal */}
+        {isSeller && deal.status === 'pending' && (
+          <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl shadow-lg">
+            <div className="flex items-center gap-2 mb-4">
+              <Package size={24} className="text-blue-700" />
+              <p className="text-lg font-bold text-blue-900 uppercase">
+                {i18n.language === 'ru' ? 'Новая заявка на покупку' : 'New Purchase Request'}
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
+              <p className="text-sm text-gray-700">
+                {i18n.language === 'ru' 
+                  ? 'Покупатель хочет купить ваш товар. Примите заявку чтобы начать сделку.'
+                  : 'Buyer wants to purchase your product. Accept the request to start the deal.'}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleUpdateStatus('accepted')}
+                className="btn btn-primary flex-1 flex items-center justify-center space-x-2 py-3 shadow-md hover:shadow-xl transition"
+              >
+                <CheckCircle size={20} />
+                <span>{i18n.language === 'ru' ? 'Принять заявку' : 'Accept Request'}</span>
+              </button>
+              <button
+                onClick={() => handleUpdateStatus('rejected')}
+                className="flex-1 flex items-center justify-center space-x-2 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md hover:shadow-xl transition"
+              >
+                <XCircle size={20} />
+                <span>{i18n.language === 'ru' ? 'Отклонить' : 'Reject'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Admin Actions */}
         {isAdmin && deal.status === 'pending' && (
           <div className="mt-6 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl">
