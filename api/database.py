@@ -5,8 +5,15 @@ from sqlalchemy.orm import declarative_base
 # Get DATABASE_URL from environment
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise ValueError(
+        "DATABASE_URL environment variable is not set. "
+        "Please add it in Vercel Environment Variables: "
+        "Settings > Environment Variables > DATABASE_URL"
+    )
+
 # Neon uses postgres:// but SQLAlchemy needs postgresql+asyncpg://
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
 
 # Create async engine
