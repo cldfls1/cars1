@@ -119,6 +119,16 @@ const DealChat = () => {
   const isBuyer = deal.buyer_id === user?.id
   const isSeller = deal.product?.seller === user?.username
 
+  // Debug logging
+  console.log('Deal info:', {
+    status: deal.status,
+    productSeller: deal.product?.seller,
+    currentUsername: user?.username,
+    isSeller,
+    isBuyer,
+    isAdmin
+  })
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <button
@@ -227,6 +237,16 @@ const DealChat = () => {
             </button>
           </div>
         )}
+
+        {/* Debug Info - Remove later */}
+        <div className="mt-4 p-4 bg-gray-100 rounded text-xs">
+          <p><strong>Debug:</strong></p>
+          <p>Status: {deal.status}</p>
+          <p>Product Seller: {deal.product?.seller}</p>
+          <p>Your Username: {user?.username}</p>
+          <p>isSeller: {isSeller ? 'Yes' : 'No'}</p>
+          <p>isBuyer: {isBuyer ? 'Yes' : 'No'}</p>
+        </div>
 
         {/* Seller Complete Deal */}
         {isSeller && deal.status === 'payment_sent' && (
