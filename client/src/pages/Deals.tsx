@@ -4,11 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { dealService, Deal } from '../services/deals'
 import { formatDate } from '../lib/utils'
 import { MessageSquare, Clock, CheckCircle, XCircle } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
 
 const Deals = () => {
   const { t, i18n } = useTranslation()
-  const { user } = useAuthStore()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
