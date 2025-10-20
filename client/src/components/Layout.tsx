@@ -64,7 +64,7 @@ const Layout = () => {
                     {t('dashboard')}
                     <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>
                   </Link>
-                  {user?.is_admin && (
+                  {user?.role === 'admin' && (
                     <Link to="/admin" className="text-gray-600 hover:text-gray-900 transition text-xs uppercase tracking-wider relative group py-1">
                       {t('admin_panel')}
                       <span className="absolute bottom-0 left-0 w-0 h-px bg-gray-900 group-hover:w-full transition-all duration-300"></span>

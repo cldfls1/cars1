@@ -41,7 +41,7 @@ function App() {
               <Route path="/deals" element={<Deals />} />
               <Route path="/deals/:id" element={<DealChat />} />
               
-              {user?.is_admin && (
+              {user?.role === 'admin' && (
                 <Route path="/admin" element={<AdminPanel />} />
               )}
             </>
