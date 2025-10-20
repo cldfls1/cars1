@@ -183,8 +183,20 @@ const Layout = () => {
               </button>
             </div>
           </div>
-          <div className="pt-8 border-t border-gray-800 text-center text-gray-500 text-xs uppercase tracking-wide">
-            &copy; 2024 CarxMods. All rights reserved.
+          <div className="pt-8 mt-8 border-t border-gray-800">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-gray-500 text-sm">
+                &copy; 2025 CarxMods. {i18n.language === 'ru' ? 'Все права защищены.' : 'All rights reserved.'}
+              </p>
+              <div className="flex gap-6 text-sm">
+                <Link to="/privacy" className="text-gray-500 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Конфиденциальность' : 'Privacy'}
+                </Link>
+                <Link to="/terms" className="text-gray-500 hover:text-white transition">
+                  {i18n.language === 'ru' ? 'Условия' : 'Terms'}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

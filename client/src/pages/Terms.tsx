@@ -11,7 +11,7 @@ const Terms = () => {
             {i18n.language === 'ru' ? 'Условия покупки' : 'Terms of Purchase'}
           </h1>
           <p className="text-gray-600">
-            {i18n.language === 'ru' ? 'Последнее обновление: 20 октября 2024' : 'Last updated: October 20, 2024'}
+            {i18n.language === 'ru' ? 'Последнее обновление: 20 октября 2025' : 'Last updated: October 20, 2025'}
           </p>
         </div>
 
