@@ -104,16 +104,6 @@ const DealChat = () => {
 
   // Function to get sender name based on sender_id
   const getSenderName = (senderId: number) => {
-    // Debug logging
-    console.log('getSenderName:', {
-      senderId,
-      userId: user?.id,
-      buyerId: deal.buyer_id,
-      buyerUsername: buyer?.username,
-      sellerUsername: seller?.username,
-      currentUserUsername: user?.username
-    })
-    
     if (senderId === user?.id) {
       return user.username // Current user
     }
