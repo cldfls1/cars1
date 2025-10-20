@@ -62,9 +62,9 @@ def health_check():
     return {"status": "healthy", "database": "connected"}
 
 # TEMPORARY: Init database (remove after first run)
-@app.post("/api/init-database")
+@app.get("/api/init-database")
 async def init_database(db: AsyncSession = Depends(get_db)):
-    """Initialize database with tables and seed data"""
+    """Initialize database with tables and seed data - Open this URL in browser"""
     try:
         # Create tables
         async with engine.begin() as conn:
