@@ -36,7 +36,7 @@ const DealChat = () => {
       setDeal(data)
       // Set seller and buyer info
       if (data.product) {
-        setSeller({ id: 2, username: data.product.seller })
+        setSeller({ id: data.product.seller_id, username: data.product.seller })
       }
       setBuyer({ id: data.buyer_id, username: data.buyer_username || 'Buyer' })
     } catch (error) {
