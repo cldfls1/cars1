@@ -5,6 +5,7 @@ const resources = {
   en: {
     translation: {
       // Navigation
+      menu: 'Menu',
       home: 'Home',
       products: 'Products',
       deals: 'Deals',
@@ -73,6 +74,7 @@ const resources = {
   ru: {
     translation: {
       // Navigation
+      menu: 'Меню',
       home: 'Главная',
       products: 'Товары',
       deals: 'Сделки',
